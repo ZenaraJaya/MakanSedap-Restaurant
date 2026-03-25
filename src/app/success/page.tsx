@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Receipt, ArrowLeft, Home, Download } from 'lucide-react';
 
-export default function SuccessPage() {
+function SuccessPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId') || '';
   const sessionId = searchParams.get('session_id') || '';
@@ -237,5 +237,13 @@ export default function SuccessPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SuccessPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0b1120] flex items-center justify-center text-white">Loading...</div>}>
+      <SuccessPage />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -28,7 +28,7 @@ function normalizeImageUrl(raw: string): string {
   return url;
 }
 
-export default function ViewOrderPage() {
+function ViewOrderPage() {
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -478,3 +478,11 @@ export default function ViewOrderPage() {
     </>
   );
 }
+
+export default function ViewOrderPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0b0f19] flex items-center justify-center text-white">Loading order...</div>}>
+      <ViewOrderPage />
+    </Suspense>
+  );
+}

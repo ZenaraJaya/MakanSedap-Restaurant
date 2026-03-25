@@ -17,7 +17,20 @@ const firebaseConfig = {
 };
 
 // Ensure we don't re-initialize the app on hot reload in dev
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app;
+try {
+  if (getApps().length > 0) {
+    app = getApp();
+  } else if (firebaseConfig.apiKey) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    // During build time on Vercel, env vars might be missing.
+    // We initialize with a dummy to prevent crashes, but it won't work until keys are added.
+    app = initializeApp({ apiKey: "temporary-build-key" });
+  }
+} catch (e) {
+  app = getApp();
+}
 
 export const firebaseApp = app;
 export const auth = getAuth(app);

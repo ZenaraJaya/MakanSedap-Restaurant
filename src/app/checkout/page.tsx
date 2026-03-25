@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -26,7 +26,7 @@ function normalizeImageUrl(raw: string): string {
   return url;
 }
 
-export default function CheckoutPage() {
+function CheckoutPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [order, setOrder] = useState<any | null>(null);
@@ -247,5 +247,13 @@ export default function CheckoutPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function CheckoutPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0b1120] flex items-center justify-center text-white">Loading checkout...</div>}>
+      <CheckoutPage />
+    </Suspense>
   );
 }

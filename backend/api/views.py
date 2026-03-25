@@ -19,16 +19,34 @@ from asgiref.sync import async_to_sync
 def _get_db():
     """Return a Firestore client, initialising the app on first call."""
     if not firebase_admin._apps:
-        # Try service-account JSON next to manage.py, then env var
-        sa_path = os.getenv(
-            "FIREBASE_SERVICE_ACCOUNT_PATH",
-            os.path.join(
-                os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
-                "restaurant-2ef10-firebase-adminsdk-fbsvc-6887285a18.json",
-            ),
-        )
-        cred = credentials.Certificate(sa_path)
-        firebase_admin.initialize_app(cred)
+        # 1. Try environment variable with raw JSON content (Best for Cloud/Render)
+        cred_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+        if cred_json:
+            try:
+                # Initialize using the JSON string directly
+                from json import loads
+                cred_dict = loads(cred_json)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+            except Exception as e:
+                print(f"Error initializing Firebase from env var: {e}")
+        
+        # 2. Fallback to service-account JSON file path
+        if not firebase_admin._apps:
+            sa_path = os.getenv(
+                "FIREBASE_SERVICE_ACCOUNT_PATH",
+                os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+                    "restaurant-2ef10-firebase-adminsdk-fbsvc-6887285a18.json",
+                ),
+            )
+            if os.path.exists(sa_path):
+                cred = credentials.Certificate(sa_path)
+                firebase_admin.initialize_app(cred)
+            else:
+                # If everything fails, initialize without credentials for local dev
+                # (This will only work if running in a Google Cloud environment or local emulator)
+                firebase_admin.initialize_app()
     return firestore.client()
 
 

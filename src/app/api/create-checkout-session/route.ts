@@ -3,9 +3,8 @@ import Stripe from 'stripe';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 export async function POST(request: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_build_placeholder');
   try {
     console.log('🔴 ROUTE CALLED');
     

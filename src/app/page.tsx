@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { ChefHat, Utensils, ShoppingCart, Headset } from 'lucide-react'; 
 import { MapPin, Phone, Mail } from 'lucide-react';
 
-export default function LandingPage() {
+function LandingPage() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId') || '';
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -663,5 +663,13 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0b0f19] flex items-center justify-center text-white">Loading...</div>}>
+      <LandingPage />
+    </Suspense>
   );
 }

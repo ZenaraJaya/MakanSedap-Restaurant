@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, addDoc, doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -28,7 +28,7 @@ function normalizeImageUrl(raw: string): string {
   return url;
 }
 
-export default function MenuPage() {
+function MenuPage() {
   const [items, setItems] = useState<
     Array<{
       id: string;
@@ -390,5 +390,13 @@ export default function MenuPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function MenuPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0b0f19] flex items-center justify-center text-white">Loading menu...</div>}>
+      <MenuPage />
+    </Suspense>
   );
 }
