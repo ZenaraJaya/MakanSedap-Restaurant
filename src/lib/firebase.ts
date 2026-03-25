@@ -26,7 +26,10 @@ try {
   } else {
     // During build time on Vercel, env vars might be missing.
     // We initialize with a dummy to prevent crashes, but it won't work until keys are added.
-    app = initializeApp({ apiKey: "temporary-build-key" });
+    app = initializeApp({ 
+      apiKey: "temporary-build-key",
+      projectId: "temporary-build-id" 
+    });
   }
 } catch (e) {
   app = getApp();
