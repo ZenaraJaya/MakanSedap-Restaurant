@@ -1,0 +1,714 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import useSWR from 'swr';
+import { auth, db } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import {
+  LineChart, Line, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart
+} from 'recharts';
+import {
+  TrendingUp, Users, DollarSign, ShoppingCart,
+  Menu as MenuIcon, LogOut, Home, Settings, Plus,
+  Pencil, Trash2, X, Check, ChefHat, Package,
+  BarChart3, Eye, EyeOff, Search, LayoutDashboard, MessageSquare
+} from 'lucide-react';
+
+/* ───────────────────────── Types ───────────────────────── */
+
+type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  description?: string;
+  image?: string;
+  category?: string;
+  is_available?: boolean;
+};
+
+type AnalyticsData = {
+  total_orders?: number;
+  total_revenue?: number;
+  menu_items?: number;
+  avg_order_value?: number;
+  daily_orders?: { date: string; count: number }[];
+  category_sales?: { category: string; sales: number }[];
+};
+
+/* ───────────────────── Fetch helper ───────────────────── */
+
+const API = 'http://localhost:8000';
+
+const fetchWithAuth = async (url: string) => {
+  const user = auth.currentUser;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (user) {
+    const token = await user.getIdToken();
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(url, { headers });
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+  return res.json();
+};
+
+/* ───────────────────── Component ───────────────────────── */
+
+export default function AdminDashboard() {
+  const router = useRouter();
+
+  // Reviews State
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentTab, setCurrentTab] = useState('dashboard');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [formStatus, setFormStatus] = useState('');
+
+  const [formData, setFormData] = useState({
+    name: '', price: '', description: '', image: '', category: '', is_available: true,
+  });
+
+  // SWR data
+  const { data: items = [], isLoading: loadingItems, mutate: mutateMenu } =
+    useSWR<MenuItem[]>(`${API}/api/menu/`, fetchWithAuth, { refreshInterval: 10000 });
+
+  const { data: analytics = {}, mutate: mutateAnalytics } =
+    useSWR<AnalyticsData>(`${API}/api/analytics/`, fetchWithAuth, { refreshInterval: 10000 });
+
+  // 🔥 WebSocket (optional – falls back to SWR polling)
+  useEffect(() => {
+    let socket: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let isMounted = true;
+    const connect = () => {
+      if (!isMounted) return;
+      try {
+        socket = new WebSocket('ws://localhost:8000/ws/dashboard/');
+        socket.onmessage = () => { mutateMenu(); mutateAnalytics(); };
+        socket.onerror = () => { };
+        socket.onclose = () => { if (isMounted) reconnectTimer = setTimeout(connect, 5000); };
+      } catch { }
+    };
+    connect();
+    return () => { isMounted = false; clearTimeout(reconnectTimer); socket?.close(); };
+  }, []);
+
+  // Fetch Reviews from Firestore in real-time
+  useEffect(() => {
+    const q = query(collection(db, 'reviews'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      const data = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setReviews(data);
+    });
+    return () => unsub();
+  }, []);
+
+  /* ─── CRUD helpers ─── */
+
+  const openAddModal = () => {
+    setEditingItem(null);
+    setFormData({ name: '', price: '', description: '', image: '', category: '', is_available: true });
+    setModalOpen(true);
+    setFormStatus('');
+  };
+
+  const openEditModal = (item: MenuItem) => {
+    setEditingItem(item);
+    setFormData({
+      name: item.name,
+      price: String(item.price),
+      description: item.description || '',
+      image: item.image || '',
+      category: item.category || '',
+      is_available: item.is_available ?? true,
+    });
+    setModalOpen(true);
+    setFormStatus('');
+  };
+
+  const handleSave = async () => {
+    setFormStatus('Saving...');
+    try {
+      const user = auth.currentUser;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user) {
+        const token = await user.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const body = JSON.stringify({
+        ...formData,
+        price: parseFloat(formData.price) || 0,
+      });
+
+      if (editingItem) {
+        await fetch(`${API}/api/menu/${editingItem.id}/`, { method: 'PUT', headers, body });
+      } else {
+        await fetch(`${API}/api/menu/`, { method: 'POST', headers, body });
+      }
+
+      mutateMenu();
+      mutateAnalytics();
+      setModalOpen(false);
+      setFormStatus('');
+    } catch {
+      setFormStatus('Error saving item');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const user = auth.currentUser;
+      const headers: Record<string, string> = {};
+      if (user) {
+        const token = await user.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      await fetch(`${API}/api/menu/${id}/`, { method: 'DELETE', headers });
+      mutateMenu();
+      mutateAnalytics();
+      setDeleteConfirm(null);
+    } catch {
+      console.error('Delete failed');
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
+  /* ─── Filtered items ─── */
+  const filteredItems = items.filter(
+    (item) =>
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  /* ─── Stat cards data ─── */
+  const stats = [
+    {
+      label: 'Total Orders',
+      value: analytics.total_orders ?? 0,
+      icon: ShoppingCart,
+      gradient: 'from-blue-500 to-blue-600',
+      bg: 'bg-blue-500/10',
+      text: 'text-blue-400',
+    },
+    {
+      label: 'Revenue',
+      value: `RM ${(analytics.total_revenue ?? 0).toLocaleString()}`,
+      icon: DollarSign,
+      gradient: 'from-emerald-500 to-emerald-600',
+      bg: 'bg-emerald-500/10',
+      text: 'text-emerald-400',
+    },
+    {
+      label: 'Menu Items',
+      value: analytics.menu_items ?? items.length,
+      icon: ChefHat,
+      gradient: 'from-amber-500 to-orange-500',
+      bg: 'bg-amber-500/10',
+      text: 'text-amber-400',
+    },
+    {
+      label: 'Avg Order',
+      value: `RM ${(analytics.avg_order_value ?? 0).toFixed(2)}`,
+      icon: TrendingUp,
+      gradient: 'from-purple-500 to-purple-600',
+      bg: 'bg-purple-500/10',
+      text: 'text-purple-400',
+    },
+  ];
+
+  const sidebarItems = [
+    { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { key: 'menu', label: 'Menu', icon: Package },
+    { key: 'reviews', label: 'Reviews', icon: MessageSquare },
+  ];
+
+  /* ─────────────────────── UI ─────────────────────────── */
+  return (
+    <div className="flex h-screen bg-[#0b0f19] text-white overflow-hidden">
+
+      {/* ── Sidebar ── */}
+      <aside
+        className={`${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col transition-all duration-300 border-r border-white/10 bg-[#0d1117]`}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 font-extrabold text-black text-lg">
+            M
+          </div>
+          {sidebarOpen && (
+            <div className="leading-tight overflow-hidden">
+              <p className="text-sm font-bold text-white">MakanSedap</p>
+              <p className="text-[11px] text-white/50">Admin Panel</p>
+            </div>
+          )}
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            const active = currentTab === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setCurrentTab(item.key)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${active
+                  ? 'bg-amber-400/10 text-amber-400'
+                  : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+              >
+                <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+                {sidebarOpen && <span>{item.label}</span>}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Bottom */}
+        <div className="px-3 py-4 border-t border-white/10 space-y-1">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
+          >
+            <MenuIcon size={20} />
+            {sidebarOpen && <span>Collapse</span>}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-all"
+          >
+            <LogOut size={20} />
+            {sidebarOpen && <span>Logout</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main Content ── */}
+      <main className="flex-1 overflow-y-auto">
+        {/* Header */}
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur-xl px-8 py-4">
+          <div>
+            <h1 className="text-xl font-bold text-white capitalize">{currentTab}</h1>
+            <p className="text-xs text-white/50 mt-0.5">
+              {currentTab === 'dashboard' && 'Overview of your restaurant performance'}
+              {currentTab === 'menu' && 'Manage your menu items'}
+            </p>
+          </div>
+          {currentTab === 'menu' && (
+            <button
+              onClick={openAddModal}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 px-5 py-2.5 text-sm font-bold text-black hover:from-amber-300 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/20"
+            >
+              <Plus size={18} strokeWidth={3} />
+              Add Item
+            </button>
+          )}
+        </header>
+
+        <div className="p-8">
+
+          {/* ═══════════ DASHBOARD TAB ═══════════ */}
+          {currentTab === 'dashboard' && (
+            <div className="space-y-8">
+
+              {/* Stat Cards */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {stats.map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div
+                      key={stat.label}
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/[0.05]"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-white/50">{stat.label}</p>
+                          <p className="mt-2 text-2xl font-extrabold text-white">{stat.value}</p>
+                        </div>
+                        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${stat.bg}`}>
+                          <Icon size={22} className={stat.text} strokeWidth={2.5} />
+                        </div>
+                      </div>
+                      {/* Decorative gradient */}
+                      <div className={`absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-10 blur-2xl transition-all group-hover:opacity-20`} />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Charts row */}
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                {/* Daily Orders Chart */}
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                  <h3 className="text-sm font-bold text-white/80 mb-4 flex items-center gap-2">
+                    <BarChart3 size={16} className="text-amber-400" />
+                    Daily Orders
+                  </h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <AreaChart data={analytics.daily_orders || []}>
+                      <defs>
+                        <linearGradient id="orderGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 12 }} />
+                      <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                      />
+                      <Area type="monotone" dataKey="count" stroke="#f59e0b" strokeWidth={2} fill="url(#orderGrad)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Category Sales Chart */}
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                  <h3 className="text-sm font-bold text-white/80 mb-4 flex items-center gap-2">
+                    <TrendingUp size={16} className="text-emerald-400" />
+                    Sales by Category
+                  </h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={analytics.category_sales || []} barSize={32}>
+                      <defs>
+                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#f59e0b" />
+                          <stop offset="100%" stopColor="#ea580c" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="category" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 12 }} />
+                      <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                        formatter={(value: any) => [`RM ${Number(value).toLocaleString()}`, 'Sales']}
+                      />
+                      <Bar dataKey="sales" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════ MENU TAB ═══════════ */}
+          {currentTab === 'menu' && (
+            <div className="space-y-6">
+
+              {/* Search bar */}
+              <div className="relative max-w-md">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
+                <input
+                  type="text"
+                  placeholder="Search menu items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/40 focus:border-amber-400/50 focus:outline-none focus:ring-1 focus:ring-amber-400/30 transition-all"
+                />
+              </div>
+
+              {/* Items list */}
+              {loadingItems ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+                    <p className="text-sm text-white/50">Loading menu...</p>
+                  </div>
+                </div>
+              ) : filteredItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-white/50">
+                  <Package size={48} strokeWidth={1.5} className="mb-3 text-white/20" />
+                  <p className="text-sm font-medium">No menu items found</p>
+                  <button onClick={openAddModal} className="mt-4 text-sm text-amber-400 hover:underline">
+                    + Add your first item
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-2xl border border-white/10">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-white/10 bg-white/[0.03]">
+                        <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-white/50">Item</th>
+                        <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-white/50">Category</th>
+                        <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-white/50">Price</th>
+                        <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-white/50">Status</th>
+                        <th className="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-white/50">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredItems.map((item) => (
+                        <tr
+                          key={item.id}
+                          className="border-b border-white/5 transition-colors hover:bg-white/[0.03]"
+                        >
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              {item.image ? (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="h-10 w-10 rounded-lg object-cover border border-white/10"
+                                  onError={(e) => { e.currentTarget.src = 'https://placehold.co/80x80/1a1f2e/f59e0b?text=🍽️'; }}
+                                />
+                              ) : (
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white/30">
+                                  <ChefHat size={18} />
+                                </div>
+                              )}
+                              <div>
+                                <p className="font-semibold text-white">{item.name}</p>
+                                {item.description && (
+                                  <p className="text-xs text-white/40 mt-0.5 line-clamp-1 max-w-[200px]">{item.description}</p>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className="inline-flex rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-medium text-white/70">
+                              {item.category || 'Uncategorized'}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 font-bold text-amber-400">
+                            RM {Number(item.price).toFixed(2)}
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${item.is_available !== false
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              }`}>
+                              {item.is_available !== false ? <Eye size={12} /> : <EyeOff size={12} />}
+                              {item.is_available !== false ? 'Available' : 'Hidden'}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => openEditModal(item)}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/60 hover:bg-amber-400/10 hover:text-amber-400 transition-all border border-white/10"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              {deleteConfirm === item.id ? (
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => handleDelete(item.id)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all"
+                                  >
+                                    <Check size={14} />
+                                  </button>
+                                  <button
+                                    onClick={() => setDeleteConfirm(null)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/60 hover:bg-white/10 transition-all"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setDeleteConfirm(item.id)}
+                                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/60 hover:bg-red-500/10 hover:text-red-400 transition-all border border-white/10"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══════════ REVIEWS TAB ═══════════ */}
+          {currentTab === 'reviews' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center bg-white/5 p-6 rounded-2xl border border-white/10">
+                <div>
+                  <h2 className="text-xl font-bold">Customer Reviews</h2>
+                  <p className="text-white/60 text-sm mt-1">Manage feedback on your Wall of Love</p>
+                </div>
+              </div>
+
+              <div className="bg-[#0f1724] rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left bg-transparent">
+                    <thead className="bg-[#141f30] border-b border-white/10">
+                      <tr>
+                        <th className="px-6 py-4 text-xs font-semibold text-white/60 tracking-wider">CUSTOMER & DATE</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-white/60 tracking-wider">RATING</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-white/60 tracking-wider">REVIEW</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {reviews.map((review) => (
+                        <tr key={review.id} className={`hover:bg-white/[0.02] transition-colors ${review.status === 'hidden' ? 'opacity-50' : ''}`}>
+                          <td className="px-6 py-4">
+                            <div className="font-medium text-white">{review.customerName || 'Anonymous'}</div>
+                            <div className="text-xs text-white/40 mt-1">
+                              {review.createdAt?.toDate ? new Date(review.createdAt.toDate()).toLocaleDateString() : 'Just now'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex text-amber-400 text-sm">
+                              {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 max-w-sm">
+                            <p className="text-sm text-white/80 truncate">{review.text}</p>
+                          </td>
+                        </tr>
+                      ))}
+                      {reviews.length === 0 && (
+                        <tr>
+                          <td colSpan={3} className="px-6 py-12 text-center text-white/40">
+                            No reviews found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+        </div>
+      </main>
+
+      {/* ═══════════ MODAL ═══════════ */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-[#12161f] p-8 shadow-2xl">
+            {/* Close */}
+            <button
+              onClick={() => setModalOpen(false)}
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white transition-all"
+            >
+              <X size={18} />
+            </button>
+
+            <h2 className="text-lg font-bold mb-6">
+              {editingItem ? 'Edit Menu Item' : 'Add New Item'}
+            </h2>
+
+            <div className="space-y-4">
+              {/* Name */}
+              <div>
+                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Name</label>
+                <input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-amber-400/50 focus:outline-none transition-all"
+                  placeholder="e.g. Nasi Lemak"
+                />
+              </div>
+
+              {/* Price + Category */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Price (RM)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-amber-400/50 focus:outline-none transition-all"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Category</label>
+                  <input
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-amber-400/50 focus:outline-none transition-all"
+                    placeholder="e.g. Main Dish"
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-amber-400/50 focus:outline-none transition-all resize-none"
+                  placeholder="Brief description..."
+                />
+              </div>
+
+              {/* Image URL */}
+              <div>
+                <label className="text-xs font-semibold text-white/50 uppercase tracking-wider">Image URL</label>
+                <input
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-amber-400/50 focus:outline-none transition-all"
+                  placeholder="https://..."
+                />
+              </div>
+
+              {/* Availability toggle */}
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <span className="text-sm font-medium text-white/70">Available on menu</span>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, is_available: !formData.is_available })}
+                  className={`relative h-6 w-11 rounded-full transition-colors ${formData.is_available ? 'bg-amber-400' : 'bg-white/20'
+                    }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${formData.is_available ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                  />
+                </button>
+              </div>
+
+              {/* Status */}
+              {formStatus && (
+                <p className={`text-sm font-medium ${formStatus.includes('Error') ? 'text-red-400' : 'text-amber-400'}`}>
+                  {formStatus}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/10 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex-1 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 py-2.5 text-sm font-bold text-black hover:from-amber-300 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/20"
+                >
+                  {editingItem ? 'Update Item' : 'Add Item'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

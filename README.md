@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Next.js (frontend + Firebase)
+
 First, run the development server:
 
 ```bash
@@ -15,6 +17,22 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Django backend (optional)
+
+The repo includes a Django API in `backend/`. Firebase is still used for auth; Django is for extra backend logic (e.g. admin, reports).
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate    # Windows
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+- Next.js: http://localhost:3000  
+- Django API: http://localhost:8000 (see `backend/README.md` for endpoints)
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
