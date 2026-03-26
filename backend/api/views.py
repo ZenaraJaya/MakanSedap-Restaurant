@@ -88,7 +88,8 @@ def check_env(request):
         "EMAIL_HOST_USER": "SET" if os.environ.get("EMAIL_HOST_USER") else "MISSING",
         "EMAIL_HOST_PASSWORD": "SET" if os.environ.get("EMAIL_HOST_PASSWORD") else "MISSING",
         "PYTHON_VERSION": os.environ.get("PYTHON_VERSION", "unknown"),
-        "ALL_ENV_KEYS": sorted(list(os.environ.keys()))
+        "ALL_ENV_KEYS": sorted(list(os.environ.keys())),
+        "FUZZY_MATCHES": [k for k in os.environ.keys() if any(x in k.upper() for x in ["FIREBASE", "DJANGO", "API", "JSON", "CRED"])]
     }
     return JsonResponse(results)
 
