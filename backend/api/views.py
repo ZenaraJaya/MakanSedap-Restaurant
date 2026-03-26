@@ -338,3 +338,37 @@ def analytics(request):
     }
 
     return JsonResponse(analytics_data)
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def test_email(request):
+    """Diagnostic endpoint to test SMTP settings."""
+    from django.core.mail import send_mail
+    if not getattr(settings, "EMAIL_HOST_USER", None) or not settings.EMAIL_HOST_USER:
+        return JsonResponse({"error": "EMAIL_HOST_USER is empty in settings"}, status=500)
+    
+    try:
+        settings_debug = {
+            "EMAIL_HOST": settings.EMAIL_HOST,
+            "EMAIL_PORT": settings.EMAIL_PORT,
+            "EMAIL_USE_TLS": settings.EMAIL_USE_TLS,
+            "EMAIL_USE_SSL": settings.EMAIL_USE_SSL,
+            "EMAIL_HOST_USER": settings.EMAIL_HOST_USER,
+        }
+        
+        send_mail(
+            subject="Diagnostic: MakanSedap SMTP Test",
+            message="This is a test email from your MakanSedap backend. If you see this, SMTP is working!",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[settings.EMAIL_HOST_USER],
+            fail_silently=False,
+        )
+        return JsonResponse({"success": True, "message": "Email sent!", "settings": settings_debug})
+    except Exception as e:
+        import traceback
+        return JsonResponse({
+            "success": False, 
+            "error": str(e), 
+            "trace": traceback.format_exc(),
+            "settings": settings_debug
+        }, status=500)
