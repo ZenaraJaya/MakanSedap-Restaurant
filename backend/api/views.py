@@ -79,6 +79,21 @@ def root(request):
 
 @csrf_exempt
 @require_http_methods(["GET"])
+def check_env(request):
+    """Check for presence of required environment variables."""
+    results = {
+        "FIREBASE_CREDENTIALS_JSON": "SET" if os.environ.get("FIREBASE_CREDENTIALS_JSON") else "MISSING",
+        "NEXT_PUBLIC_DJANGO_API_URL": "SET" if os.environ.get("NEXT_PUBLIC_DJANGO_API_URL") else "MISSING",
+        "DJANGO_API_URL": "SET" if os.environ.get("DJANGO_API_URL") else "MISSING",
+        "EMAIL_HOST_USER": "SET" if os.environ.get("EMAIL_HOST_USER") else "MISSING",
+        "EMAIL_HOST_PASSWORD": "SET" if os.environ.get("EMAIL_HOST_PASSWORD") else "MISSING",
+        "PYTHON_VERSION": os.environ.get("PYTHON_VERSION", "unknown"),
+        "ENV_KEYS": list(os.environ.keys())[:10]  # Show some keys to verify env is being read
+    }
+    return JsonResponse(results)
+
+@csrf_exempt
+@require_http_methods(["GET"])
 def health(request):
     return JsonResponse({"status": "healthy"})
 
