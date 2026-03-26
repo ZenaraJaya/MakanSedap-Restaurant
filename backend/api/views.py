@@ -21,18 +21,14 @@ def _get_db():
     if not firebase_admin._apps:
         # 1. Try environment variable with raw JSON content
         cred_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
-        print(f"🔍 DEBUG: FIREBASE_CREDENTIALS_JSON present: {bool(cred_json)}")
-        
         if cred_json:
             try:
                 from json import loads
                 cred_dict = loads(cred_json)
-                print(f"🔍 DEBUG: JSON type: {cred_dict.get('type')}")
                 cred = credentials.Certificate(cred_dict)
                 firebase_admin.initialize_app(cred)
-                print("✅ DEBUG: Firebase initialized from JSON env var")
             except Exception as e:
-                print(f"❌ DEBUG: Error initializing Firebase from env var: {e}")
+                print(f"Error initializing Firebase from env var: {e}")
         
         # 2. Fallback to service-account JSON file path
         if not firebase_admin._apps:
@@ -43,13 +39,10 @@ def _get_db():
                     "restaurant-2ef10-firebase-adminsdk-fbsvc-6887285a18.json",
                 ),
             )
-            print(f"🔍 DEBUG: checking file path: {sa_path}")
             if os.path.exists(sa_path):
-                print("✅ DEBUG: Found service-account file")
                 cred = credentials.Certificate(sa_path)
                 firebase_admin.initialize_app(cred)
             else:
-                print("⚠️ DEBUG: No credentials found, falling back to default (ADC)")
                 firebase_admin.initialize_app()
     return firestore.client()
 
@@ -76,22 +69,6 @@ def _notify_ws(data: dict):
 def root(request):
     return JsonResponse({"message": "Restaurant API is running"})
 
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def check_env(request):
-    """Check for presence of required environment variables."""
-    results = {
-        "FIREBASE_CREDENTIALS_JSON": "SET" if os.environ.get("FIREBASE_CREDENTIALS_JSON") else "MISSING",
-        "NEXT_PUBLIC_DJANGO_API_URL": "SET" if os.environ.get("NEXT_PUBLIC_DJANGO_API_URL") else "MISSING",
-        "DJANGO_API_URL": "SET" if os.environ.get("DJANGO_API_URL") else "MISSING",
-        "EMAIL_HOST_USER": "SET" if os.environ.get("EMAIL_HOST_USER") else "MISSING",
-        "EMAIL_HOST_PASSWORD": "SET" if os.environ.get("EMAIL_HOST_PASSWORD") else "MISSING",
-        "PYTHON_VERSION": os.environ.get("PYTHON_VERSION", "unknown"),
-        "ALL_ENV_KEYS": sorted(list(os.environ.keys())),
-        "FUZZY_MATCHES": [k for k in os.environ.keys() if any(x in k.upper() for x in ["FIREBASE", "DJANGO", "API", "JSON", "CRED"])]
-    }
-    return JsonResponse(results)
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -223,8 +200,6 @@ def mark_order_paid(request, order_id):
             order_data = doc.to_dict()
             customer_email = order_data.get("customerEmail") or data.get("customerEmail")
             
-            print(f"📧 Attempting email: to={customer_email}, from={settings.EMAIL_HOST_USER}")
-
             if customer_email and settings.EMAIL_HOST_USER:
                 items_list = order_data.get("items", [])
                 
@@ -292,12 +267,9 @@ def mark_order_paid(request, order_id):
                     message=msg,
                     from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[customer_email],
-                    fail_silently=False,  # Set to False to see errors in logs
+                    fail_silently=False, 
                     html_message=html_msg,
                 )
-                print(f"✅ Success: Email sent to {customer_email}")
-            else:
-                print(f"⚠️ Email skipped: Missing email or EMAIL_HOST_USER")
         except Exception as email_err:
             import traceback
             print(f"❌ Failed to send email receipt: {email_err}")
@@ -366,23 +338,3 @@ def analytics(request):
     }
 
     return JsonResponse(analytics_data)
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def test_email(request):
-    """Diagnostic endpoint to test SMTP settings."""
-    from django.core.mail import send_mail
-    if not getattr(settings, "EMAIL_HOST_USER", None):
-        return JsonResponse({"error": "EMAIL_HOST_USER not configured"}, status=500)
-    
-    try:
-        send_mail(
-            subject="Diagnostic: MakanSedap SMTP Test",
-            message="This is a test email from your MakanSedap backend. If you see this, SMTP is working!",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[settings.EMAIL_HOST_USER],
-            fail_silently=False,
-        )
-        return JsonResponse({"success": True, "message": f"Test email sent to {settings.EMAIL_HOST_USER}"})
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
