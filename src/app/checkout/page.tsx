@@ -32,16 +32,16 @@ function CheckoutPage() {
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const orderId = searchParams.get('orderId') || (typeof window !== 'undefined' ? localStorage.getItem('currentOrderId') || '' : '');
-  const [paymentMethod, setPaymentMethod] = useState<'fpx'|'card'|'ewallet'|'counter'>('fpx');
+  const [paymentMethod, setPaymentMethod] = useState<'fpx' | 'card' | 'ewallet' | 'counter'>('fpx');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [toast, setToast] = useState<{message:string, show:boolean}>({message:'', show:false});
+  const [toast, setToast] = useState<{ message: string, show: boolean }>({ message: '', show: false });
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user) signInAnonymously(auth).catch(() => {});
+      if (!user) signInAnonymously(auth).catch(() => { });
     });
     return () => unsub();
   }, []);
@@ -80,13 +80,13 @@ function CheckoutPage() {
 
   const pay = async () => {
     if (!orderId || !orderItems.length) {
-      setToast({message:'No items in order', show:true});
-      setTimeout(() => setToast({message:'', show:false}), 2000);
+      setToast({ message: 'No items in order', show: true });
+      setTimeout(() => setToast({ message: '', show: false }), 2000);
       return;
     }
-    
+
     setProcessing(true);
-    
+
     try {
       // 1. Save customer info to Firestore first
       const orderRef = doc(db, 'orders', orderId);
@@ -108,7 +108,7 @@ function CheckoutPage() {
             paymentMethod: 'counter',
           }),
         });
-        
+
         if (res.ok) {
           if (typeof window !== 'undefined') {
             localStorage.removeItem('currentOrderId');
@@ -141,15 +141,15 @@ function CheckoutPage() {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('currentOrderId');
         }
-        window.location.href = data.url; 
+        window.location.href = data.url;
       }
-      
+
     } catch (err) {
       console.error('Payment failed', err);
-      setToast({message:'Failed to connect to Stripe', show:true});
-      setTimeout(() => setToast({message:'', show:false}), 3000);
+      setToast({ message: 'Failed to connect to Stripe', show: true });
+      setTimeout(() => setToast({ message: '', show: false }), 3000);
       setProcessing(false);
-    } 
+    }
   };
 
   if (loading) {
@@ -189,33 +189,33 @@ function CheckoutPage() {
 
             <div className="space-y-4">
               <label className="flex items-center gap-3">
-                <input type="radio" name="pm" checked={paymentMethod==='fpx'} onChange={()=>setPaymentMethod('fpx')} className="accent-amber-400" />
+                <input type="radio" name="pm" checked={paymentMethod === 'fpx'} onChange={() => setPaymentMethod('fpx')} className="accent-amber-400" />
                 <span>FPX (online banking)</span>
               </label>
               <label className="flex items-center gap-3">
-                <input type="radio" name="pm" checked={paymentMethod==='card'} onChange={()=>setPaymentMethod('card')} className="accent-amber-400" />
+                <input type="radio" name="pm" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="accent-amber-400" />
                 <span>Credit / Debit Card</span>
               </label>
               <label className="flex items-center gap-3">
-                <input type="radio" name="pm" checked={paymentMethod==='ewallet'} onChange={()=>setPaymentMethod('ewallet')} className="accent-amber-400" />
+                <input type="radio" name="pm" checked={paymentMethod === 'ewallet'} onChange={() => setPaymentMethod('ewallet')} className="accent-amber-400" />
                 <span>e-Wallet</span>
               </label>
               <label className="flex items-center gap-3">
-                <input type="radio" name="pm" checked={paymentMethod==='counter'} onChange={()=>setPaymentMethod('counter')} className="accent-amber-400" />
-                <span className="font-semibold text-amber-400">Pay at Counter</span>
+                <input type="radio" name="pm" checked={paymentMethod === 'counter'} onChange={() => setPaymentMethod('counter')} className="accent-amber-400" />
+                <span>Pay at Counter</span>
               </label>
             </div>
 
             <div className="mt-6">
               <h3 className="text-sm text-white/80 mb-2">Customer</h3>
-              <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Full name" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white mb-3" />
-              <input value={email} onChange={(e)=>setEmail(e.target.value)} type="email" placeholder="Email address (for receipt)" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white mb-3" />
-              <input value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="Phone" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white" />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white mb-3" />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email address (for receipt)" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white mb-3" />
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white" />
             </div>
 
             <div className="mt-6">
               <h3 className="text-sm text-white/80 mb-2">Payment details</h3>
-              {paymentMethod==='card' ? (
+              {paymentMethod === 'card' ? (
                 <div className="space-y-2">
                   <input placeholder="Card number" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white" />
                   <div className="grid grid-cols-2 gap-2">
@@ -244,7 +244,7 @@ function CheckoutPage() {
                 {orderItems.map((it) => (
                   <li key={it.id || it.name} className="flex items-center gap-3">
                     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-white/5 border border-white/6">
-                      <img src={normalizeImageUrl(it.image || it.img || '')} alt={it.name} className="h-full w-full object-cover" onError={(e)=>{e.currentTarget.src='https://placehold.co/200x200?text=Food'}} />
+                      <img src={normalizeImageUrl(it.image || it.img || '')} alt={it.name} className="h-full w-full object-cover" onError={(e) => { e.currentTarget.src = 'https://placehold.co/200x200?text=Food' }} />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between">
@@ -252,7 +252,7 @@ function CheckoutPage() {
                           <div className="font-semibold text-white">{it.name}</div>
                           <div className="text-xs text-white/60">Qty: {it.qty || it.quantity || 0}</div>
                         </div>
-                        <div className="font-semibold text-amber-400">RM {(Number(it.price||it.unit_price||0)*(it.qty||it.quantity||0)).toFixed(2)}</div>
+                        <div className="font-semibold text-amber-400">RM {(Number(it.price || it.unit_price || 0) * (it.qty || it.quantity || 0)).toFixed(2)}</div>
                       </div>
                     </div>
                   </li>
