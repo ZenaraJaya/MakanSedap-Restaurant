@@ -320,6 +320,7 @@ def analytics(request):
     total_revenue = 0
     category_sales_map = {}
     daily_orders_map = {}
+    item_sales_map = {}  # Track top selling items
 
     for odoc in order_docs:
         odata = odoc.to_dict()
@@ -327,19 +328,28 @@ def analytics(request):
         for it in items:
             qty = it.get("qty", it.get("quantity", 1))
             price = float(it.get("price", 0))
+            name = it.get("name", "Unknown Item")
             total_revenue += price * qty
 
             cat = it.get("category", "Other") or "Other"
             category_sales_map[cat] = category_sales_map.get(cat, 0) + price * qty
 
+            # Item sales (by quantity)
+            item_sales_map[name] = item_sales_map.get(name, 0) + qty
+
         # Daily breakdown
         created = odata.get("createdAt")
         if created:
             try:
+                # Firestore timestamp to datetime helper if needed, but stream() returns datetime objects or similar
                 day_label = created.strftime("%a")
             except Exception:
                 day_label = "N/A"
             daily_orders_map[day_label] = daily_orders_map.get(day_label, 0) + 1
+
+    # ── Top Items ──
+    sorted_items = sorted(item_sales_map.items(), key=lambda x: x[1], reverse=True)
+    top_items = [{"name": name, "sales": sales} for name, sales in sorted_items[:5]]
 
     # ── Menu item count ──
     menu_docs = list(db.collection("menuItems").stream())
@@ -359,6 +369,7 @@ def analytics(request):
             {"category": cat, "sales": round(sales, 2)}
             for cat, sales in category_sales_map.items()
         ],
+        "top_items": top_items,
     }
 
     return JsonResponse(analytics_data)

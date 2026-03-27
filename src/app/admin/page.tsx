@@ -36,6 +36,7 @@ type AnalyticsData = {
   avg_order_value?: number;
   daily_orders?: { date: string; count: number }[];
   category_sales?: { category: string; sales: number }[];
+  top_items?: { name: string; sales: number }[];
 };
 
 /* ───────────────────── Fetch helper ───────────────────── */
@@ -231,6 +232,7 @@ export default function AdminDashboard() {
 
   const sidebarItems = [
     { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { key: 'analytics', label: 'Analytics', icon: BarChart3 },
     { key: 'menu', label: 'Menu', icon: Package },
     { key: 'reviews', label: 'Reviews', icon: MessageSquare },
   ];
@@ -304,6 +306,7 @@ export default function AdminDashboard() {
             <h1 className="text-xl font-bold text-white capitalize">{currentTab}</h1>
             <p className="text-xs text-white/50 mt-0.5">
               {currentTab === 'dashboard' && 'Overview of your restaurant performance'}
+              {currentTab === 'analytics' && 'Detailed insights and sales performance'}
               {currentTab === 'menu' && 'Manage your menu items'}
             </p>
           </div>
@@ -322,7 +325,7 @@ export default function AdminDashboard() {
 
           {/* ═══════════ DASHBOARD TAB ═══════════ */}
           {currentTab === 'dashboard' && (
-            <div className="space-y-8">
+            <div className="space-y-8 animate-in fade-in duration-500">
 
               {/* Stat Cards */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -342,16 +345,14 @@ export default function AdminDashboard() {
                           <Icon size={22} className={stat.text} strokeWidth={2.5} />
                         </div>
                       </div>
-                      {/* Decorative gradient */}
                       <div className={`absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-10 blur-2xl transition-all group-hover:opacity-20`} />
                     </div>
                   );
                 })}
               </div>
 
-              {/* Charts row */}
+              {/* Charts row (Quick View) */}
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {/* Daily Orders Chart */}
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                   <h3 className="text-sm font-bold text-white/80 mb-4 flex items-center gap-2">
                     <BarChart3 size={16} className="text-amber-400" />
@@ -376,7 +377,6 @@ export default function AdminDashboard() {
                   </ResponsiveContainer>
                 </div>
 
-                {/* Category Sales Chart */}
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
                   <h3 className="text-sm font-bold text-white/80 mb-4 flex items-center gap-2">
                     <TrendingUp size={16} className="text-emerald-400" />
@@ -384,12 +384,6 @@ export default function AdminDashboard() {
                   </h3>
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={analytics.category_sales || []} barSize={32}>
-                      <defs>
-                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#f59e0b" />
-                          <stop offset="100%" stopColor="#ea580c" />
-                        </linearGradient>
-                      </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="category" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 12 }} />
                       <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 12 }} />
@@ -401,6 +395,112 @@ export default function AdminDashboard() {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════ ANALYTICS TAB ═══════════ */}
+          {currentTab === 'analytics' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              {/* Analytics Header Cards */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-6 shadow-lg shadow-amber-500/5">
+                  <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">Best Selling Item</p>
+                  <h3 className="text-2xl font-black text-white">
+                    {analytics.top_items && analytics.top_items.length > 0 ? analytics.top_items[0].name : 'N/A'}
+                  </h3>
+                  <p className="text-sm text-white/50 mt-1">
+                    {analytics.top_items && analytics.top_items.length > 0 ? `${analytics.top_items[0].sales} units sold` : 'No sales yet'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Total Revenue</p>
+                  <h3 className="text-2xl font-black text-white">RM {(analytics.total_revenue ?? 0).toLocaleString()}</h3>
+                  <p className="text-sm text-emerald-400 mt-1 flex items-center gap-1">
+                    <TrendingUp size={14} /> Overall Performance
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">Avg. Order Value</p>
+                  <h3 className="text-2xl font-black text-white">RM {(analytics.avg_order_value ?? 0).toFixed(2)}</h3>
+                  <p className="text-sm text-blue-400 mt-1 flex items-center gap-1">
+                    <ShoppingCart size={14} /> Per customer visit
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {/* Top Selling Items Chart */}
+                <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <TrendingUp size={16} className="text-amber-400" />
+                      Best Selling Items
+                    </h3>
+                  </div>
+                  <ResponsiveContainer width="100%" height={320}>
+                    <BarChart data={analytics.top_items || []} layout="vertical" margin={{ left: 40, right: 30 }}>
+                      <defs>
+                        <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#f59e0b" />
+                          <stop offset="100%" stopColor="#ea580c" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                      <XAxis type="number" stroke="rgba(255,255,255,0.3)" hide />
+                      <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.6)" width={100} tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                        contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                      />
+                      <Bar dataKey="sales" fill="url(#barGrad)" radius={[0, 4, 4, 0]} barSize={20} label={{ position: 'right', fill: '#fff', fontSize: 10 }} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Sales by Category (Enhanced for Analytics) */}
+                <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl">
+                  <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                    <Package size={16} className="text-purple-400" />
+                    Revenue by Category
+                  </h3>
+                  <ResponsiveContainer width="100%" height={320}>
+                    <BarChart data={analytics.category_sales || []} barSize={40}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                      <XAxis dataKey="category" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 11 }} />
+                      <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        formatter={(value: any) => [`RM ${Number(value).toLocaleString()}`, 'Revenue']}
+                      />
+                      <Bar dataKey="sales" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Weekly Trend (Daily Orders) */}
+              <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl">
+                <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-emerald-400" />
+                  Order Volume Trend (Weekly)
+                </h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <AreaChart data={analytics.daily_orders || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" />
+                    <YAxis stroke="rgba(255,255,255,0.3)" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1a1f2e', border: 'none', borderRadius: '12px' }} />
+                    <Area type="monotone" dataKey="count" stroke="#10b981" fillOpacity={1} fill="url(#emeraldGrad)" />
+                    <defs>
+                      <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
           )}
