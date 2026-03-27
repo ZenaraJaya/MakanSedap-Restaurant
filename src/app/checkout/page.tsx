@@ -32,7 +32,7 @@ function CheckoutPage() {
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const orderId = searchParams.get('orderId') || (typeof window !== 'undefined' ? localStorage.getItem('currentOrderId') || '' : '');
-  const [paymentMethod, setPaymentMethod] = useState<'fpx' | 'card' | 'ewallet' | 'counter'>('fpx');
+  const [paymentMethod, setPaymentMethod] = useState<'fpx' | 'counter'>('fpx');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -193,14 +193,6 @@ function CheckoutPage() {
                 <span>FPX (online banking)</span>
               </label>
               <label className="flex items-center gap-3">
-                <input type="radio" name="pm" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} className="accent-amber-400" />
-                <span>Credit / Debit Card</span>
-              </label>
-              <label className="flex items-center gap-3">
-                <input type="radio" name="pm" checked={paymentMethod === 'ewallet'} onChange={() => setPaymentMethod('ewallet')} className="accent-amber-400" />
-                <span>e-Wallet</span>
-              </label>
-              <label className="flex items-center gap-3">
                 <input type="radio" name="pm" checked={paymentMethod === 'counter'} onChange={() => setPaymentMethod('counter')} className="accent-amber-400" />
                 <span>Pay at Counter</span>
               </label>
@@ -214,18 +206,12 @@ function CheckoutPage() {
             </div>
 
             <div className="mt-6">
-              <h3 className="text-sm text-white/80 mb-2">Payment details</h3>
-              {paymentMethod === 'card' ? (
-                <div className="space-y-2">
-                  <input placeholder="Card number" className="w-full rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white" />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input placeholder="MM/YY" className="rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white" />
-                    <input placeholder="CVC" className="rounded-lg bg-[#0f1724] border border-white/6 px-4 py-2 text-white" />
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-white/70">You'll be redirected to the provider to complete payment (simulated).</p>
-              )}
+              <h3 className="text-sm text-white/80 mb-2">Payment notice</h3>
+              <p className="text-sm text-white/70">
+                {paymentMethod === 'counter' 
+                  ? "Your order will be sent to the kitchen. Please pay at the counter." 
+                  : "You'll be redirected to your bank to complete the payment."}
+              </p>
             </div>
 
             <div className="mt-6">
