@@ -198,7 +198,8 @@ def mark_order_paid(request, order_id):
         # Try to send an email receipt
         try:
             order_data = doc.to_dict()
-            customer_email = order_data.get("customerEmail") or data.get("customerEmail")
+            # Prioritize email passed in request, then order data
+            customer_email = data.get("customerEmail") or order_data.get("customerEmail")
             
             if customer_email and settings.EMAIL_HOST_USER:
                 items_list = order_data.get("items", [])

@@ -56,6 +56,7 @@ function SuccessPage() {
               body: JSON.stringify({
                 orderId: orderId,
                 sessionId: sessionId,
+                email: data.customerEmail || '',
               }),
             });
             if (res.ok) {

@@ -94,18 +94,32 @@ CHANNEL_LAYERS = {
 
 # Email Settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.hostinger.com")
 
-raw_port = os.environ.get("EMAIL_PORT", "465")
+# Dynamic Email Host Detection
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "testdev@zenarajaya.com").strip()
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Zen@jaya_26").strip()
+
+# Default to gmail if user is gmail
+default_host = "smtp.gmail.com" if "gmail.com" in EMAIL_HOST_USER.lower() else "smtp.hostinger.com"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", default_host)
+
+# Default port based on host
+default_port = "587" if "gmail.com" in EMAIL_HOST.lower() else "465"
+raw_port = os.environ.get("EMAIL_PORT", default_port)
+
 try:
     clean_port = "".join(filter(str.isdigit, str(raw_port)))
     EMAIL_PORT = int(clean_port) if clean_port else 465
 except Exception:
     EMAIL_PORT = 465
 
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").strip().upper() == "TRUE"
-EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True").strip().upper() == "TRUE"
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "testdev@zenarajaya.com").strip()
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Zen@jaya_26").strip()
+# Security settings based on port
+if EMAIL_PORT == 587:
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+else:
+    # Usually 465
+    EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").strip().upper() == "TRUE"
+    EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True").strip().upper() == "TRUE"
 
-print(f"--- DEBUG: Settings loaded successfully (Port: {EMAIL_PORT}, User: {EMAIL_HOST_USER}) ---")
+print(f"--- DEBUG: Settings loaded successfully (Host: {EMAIL_HOST}, Port: {EMAIL_PORT}, User: {EMAIL_HOST_USER}) ---")
