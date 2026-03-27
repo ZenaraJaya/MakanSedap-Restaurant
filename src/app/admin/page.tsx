@@ -36,7 +36,7 @@ type AnalyticsData = {
   avg_order_value?: number;
   daily_orders?: { date: string; count: number }[];
   category_sales?: { category: string; sales: number }[];
-  top_items?: { name: string; sales: number }[];
+  top_items?: { name: string; sales: number; image?: string }[];
 };
 
 /* ───────────────────── Fetch helper ───────────────────── */
@@ -246,14 +246,17 @@ export default function AdminDashboard() {
         className={`${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col transition-all duration-300 border-r border-white/10 bg-[#0d1117]`}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 font-extrabold text-black text-lg">
+        <div className="flex items-center gap-3 px-6 py-6 border-b border-white/5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 font-extrabold text-black text-xl shadow-lg shadow-amber-500/20">
             M
           </div>
           {sidebarOpen && (
-            <div className="leading-tight overflow-hidden">
-              <p className="text-sm font-bold text-white">MakanSedap</p>
-              <p className="text-[11px] text-white/50">Admin Panel</p>
+            <div className="leading-tight overflow-hidden animate-in fade-in duration-500">
+              <p className="text-sm font-black tracking-tight text-white uppercase">MakanSedap</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Admin Pro</p>
+              </div>
             </div>
           )}
         </div>
@@ -329,23 +332,32 @@ export default function AdminDashboard() {
 
               {/* Stat Cards */}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {stats.map((stat) => {
+                {stats.map((stat, idx) => {
                   const Icon = stat.icon;
+                  // Mock percentage for visual flair matching the user's example
+                  const progress = 65 + (idx * 10); 
+                  const strokeDash = 113; // 2 * PI * 18
+                  const offset = strokeDash - (strokeDash * progress) / 100;
+
                   return (
                     <div
                       key={stat.label}
-                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/[0.05]"
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.05] hover:shadow-2xl hover:shadow-black/20"
                     >
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between relative z-10">
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-wider text-white/50">{stat.label}</p>
-                          <p className="mt-2 text-2xl font-extrabold text-white">{stat.value}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">{stat.label}</p>
+                          <p className="mt-2 text-2xl font-black text-white">{stat.value}</p>
                         </div>
-                        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${stat.bg}`}>
-                          <Icon size={22} className={stat.text} strokeWidth={2.5} />
+                        <div className="relative flex h-12 w-12 items-center justify-center">
+                            <svg className="absolute inset-0 -rotate-90 h-full w-full">
+                                <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/5" />
+                                <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={125} strokeDashoffset={125 - (125 * progress / 100)} className={stat.text} style={{ transition: 'stroke-dashoffset 1.5s ease' }} />
+                            </svg>
+                            <Icon size={18} className={stat.text} strokeWidth={2.5} />
                         </div>
                       </div>
-                      <div className={`absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-10 blur-2xl transition-all group-hover:opacity-20`} />
+                      <div className={`absolute -bottom-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-5 blur-2xl transition-all group-hover:opacity-10`} />
                     </div>
                   );
                 })}
@@ -430,53 +442,85 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                {/* Top Selling Items Chart */}
-                <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl">
-                  <div className="flex items-center justify-between mb-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                {/* Top Selling Items (Visual Gallery) */}
+                <div className="lg:col-span-2 space-y-4">
+                  <div className="flex items-center justify-between px-2">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <TrendingUp size={16} className="text-amber-400" />
-                      Best Selling Items
+                      Top Performing Items
                     </h3>
                   </div>
-                  <ResponsiveContainer width="100%" height={320}>
-                    <BarChart data={analytics.top_items || []} layout="vertical" margin={{ left: 40, right: 30 }}>
-                      <defs>
-                        <linearGradient id="barGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#f59e0b" />
-                          <stop offset="100%" stopColor="#ea580c" />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                      <XAxis type="number" stroke="rgba(255,255,255,0.3)" hide />
-                      <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.6)" width={100} tick={{ fontSize: 11 }} />
-                      <Tooltip
-                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                        contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                      />
-                      <Bar dataKey="sales" fill="url(#barGrad)" radius={[0, 4, 4, 0]} barSize={20} label={{ position: 'right', fill: '#fff', fontSize: 10 }} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {analytics.top_items?.slice(0, 3).map((item, idx) => (
+                      <div key={item.name} className="group overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all hover:border-amber-400/30 hover:shadow-2xl hover:shadow-amber-900/10">
+                        <div className="relative h-40 overflow-hidden">
+                          {item.image ? (
+                            <img src={item.image} alt={item.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-white/5 text-white/20">
+                              <ChefHat size={40} />
+                            </div>
+                          )}
+                          <div className="absolute top-3 left-3 flex h-8 w-8 items-center justify-center rounded-lg bg-black/60 backdrop-blur-md text-xs font-bold text-amber-400 border border-white/10">
+                            #{idx + 1}
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-bold text-white line-clamp-1">{item.name}</h4>
+                          <div className="mt-3 flex items-center justify-between">
+                            <div className="space-y-1">
+                              <p className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Units Sold</p>
+                              <p className="text-lg font-black text-amber-400">{item.sales}</p>
+                            </div>
+                            <div className="h-10 w-10 rounded-full border-2 border-white/5 flex items-center justify-center relative">
+                                <span className="text-[10px] font-bold text-white/60">{(item.sales / (analytics.total_orders || 1) * 100).toFixed(0)}%</span>
+                                <svg className="absolute inset-0 -rotate-90">
+                                  <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/5" />
+                                  <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray={113} strokeDashoffset={113 - (113 * (item.sales / (analytics.total_orders || 1)))} className="text-amber-400 transition-all duration-1000" />
+                                </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(!analytics.top_items || analytics.top_items.length === 0) && (
+                      <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-2xl text-white/20">
+                        <Package size={40} className="mb-2" />
+                        <p className="text-sm">No sales data available yet</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Sales by Category (Enhanced for Analytics) */}
-                <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl">
+                <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl h-full flex flex-col">
                   <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                     <Package size={16} className="text-purple-400" />
-                    Revenue by Category
+                    Revenue Mix
                   </h3>
-                  <ResponsiveContainer width="100%" height={320}>
-                    <BarChart data={analytics.category_sales || []} barSize={40}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis dataKey="category" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 11 }} />
-                      <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 11 }} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                        formatter={(value: any) => [`RM ${Number(value).toLocaleString()}`, 'Revenue']}
-                      />
-                      <Bar dataKey="sales" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="flex-1 flex flex-col justify-center">
+                    <ResponsiveContainer width="100%" height={260}>
+                      <BarChart data={analytics.category_sales || []} barSize={24}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <XAxis dataKey="category" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 10 }} />
+                        <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 10 }} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                          formatter={(value: any) => [`RM ${Number(value).toLocaleString()}`, 'Revenue']}
+                        />
+                        <Bar dataKey="sales" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
+                        {analytics.category_sales?.slice(0, 3).map(cat => (
+                            <div key={cat.category} className="flex items-center justify-between">
+                                <span className="text-xs text-white/50">{cat.category}</span>
+                                <span className="text-xs font-bold text-white">RM {cat.sales.toLocaleString()}</span>
+                            </div>
+                        ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 

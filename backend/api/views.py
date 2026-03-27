@@ -321,6 +321,7 @@ def analytics(request):
     category_sales_map = {}
     daily_orders_map = {}
     item_sales_map = {}  # Track top selling items
+    item_image_map = {}  # Track images for those items
 
     for odoc in order_docs:
         odata = odoc.to_dict()
@@ -329,6 +330,7 @@ def analytics(request):
             qty = it.get("qty", it.get("quantity", 1))
             price = float(it.get("price", 0))
             name = it.get("name", "Unknown Item")
+            img = it.get("image")
             total_revenue += price * qty
 
             cat = it.get("category", "Other") or "Other"
@@ -336,6 +338,8 @@ def analytics(request):
 
             # Item sales (by quantity)
             item_sales_map[name] = item_sales_map.get(name, 0) + qty
+            if img:
+                item_image_map[name] = img
 
         # Daily breakdown
         created = odata.get("createdAt")
@@ -349,7 +353,10 @@ def analytics(request):
 
     # ── Top Items ──
     sorted_items = sorted(item_sales_map.items(), key=lambda x: x[1], reverse=True)
-    top_items = [{"name": name, "sales": sales} for name, sales in sorted_items[:5]]
+    top_items = [
+        {"name": name, "sales": sales, "image": item_image_map.get(name)} 
+        for name, sales in sorted_items[:5]
+    ]
 
     # ── Menu item count ──
     menu_docs = list(db.collection("menuItems").stream())
