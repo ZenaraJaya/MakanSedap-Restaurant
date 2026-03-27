@@ -13,6 +13,7 @@ from firebase_admin import credentials, firestore
 # WebSocket imports
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import threading
 
 
 # ── Firebase init ────────────────────────────────────────────────
@@ -58,6 +59,85 @@ def _notify_ws(data: dict):
         )
     except Exception:
         pass  # WebSocket is optional
+
+
+def _send_receipt_email_async(order_id, customer_email, order_data, data):
+    """Background task to send email without blocking the main response."""
+    try:
+        print(f"📧 [EMAIL_THREAD] Starting for order {order_id} to {customer_email}")
+        
+        if not customer_email or not settings.EMAIL_HOST_USER:
+            print("📧 [EMAIL_THREAD] Skipped: No email or host user configured")
+            return
+
+        items_list = order_data.get("items", [])
+        
+        # Build receipt text
+        items_text = ""
+        html_items = ""
+        total = 0
+        for it in items_list:
+            price = float(it.get("price", 0))
+            qty = int(it.get("qty", it.get("quantity", 1)))
+            item_total = price * qty
+            items_text += f"- {qty}x {it.get('name', 'Item')} (RM {item_total:.2f})\n"
+            
+            html_items += f'''
+            <tr>
+              <td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 15px;">{qty}x {it.get('name', 'Item')}</td>
+              <td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #111827; font-size: 15px;">RM {item_total:.2f}</td>
+            </tr>
+            '''
+            total += item_total
+        
+        # Plain Text Fallback
+        msg = f"Payment Successful!\n\nThank you for your order at MakanSedap.\n\n"
+        msg += f"Order ID: {order_id}\n\nItems Ordered:\n{items_text}\n"
+        msg += f"Total Paid: RM {total:.2f}\n\nYour food is being prepared."
+        
+        # HTML Receipt
+        html_msg = f'''
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 16px; background-color: #f9fafb;">
+          <div style="background-color: white; border-radius: 16px; padding: 40px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid #f3f4f6;">
+            <div style="text-align: center; margin-bottom: 40px;">
+              <h1 style="color: #f59e0b; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">MakanSedap</h1>
+              <div style="display: inline-block; background-color: #ecfdf5; color: #059669; font-weight: 600; padding: 6px 16px; border-radius: 9999px; font-size: 14px; margin-top: 16px;">Payment Successful</div>
+            </div>
+            <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 32px; border: 1px solid #e2e8f0;">
+              <p style="margin: 0; color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
+              <p style="margin: 8px 0 0 0; color: #0f172a; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 15px;">{order_id}</p>
+            </div>
+            <h3 style="color: #0f172a; margin-bottom: 20px; font-size: 18px; font-weight: 700; padding-left: 8px;">Order Summary</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
+              {html_items}
+              <tr>
+                <td style="padding: 24px 16px; color: #64748b; font-weight: 500; font-size: 16px;">Total Paid</td>
+                <td style="padding: 24px 16px; text-align: right; color: #f59e0b; font-weight: 800; font-size: 20px;">RM {total:.2f}</td>
+              </tr>
+            </table>
+            <div style="text-align: center; margin-top: 40px; padding-top: 32px; border-top: 2px dashed #e2e8f0;">
+              <p style="color: #334155; font-size: 16px; font-weight: 600; margin: 0;">Your food is currently being prepared! 🍳</p>
+              <p style="color: #94a3b8; font-size: 14px; margin-top: 12px; margin-bottom: 0;">Thank you for dining with MakanSedap.</p>
+            </div>
+          </div>
+        </div>
+        '''
+        
+        print(f"📧 [EMAIL_THREAD] Sending email via {settings.EMAIL_HOST}:{settings.EMAIL_PORT}...")
+        send_mail(
+            subject=f"Receipt for Order #{order_id[:8]}",
+            message=msg,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[customer_email],
+            fail_silently=False, 
+            html_message=html_msg,
+        )
+        print(f"✅ [EMAIL_THREAD] Successfully sent to {customer_email}")
+
+    except Exception as email_err:
+        import traceback
+        print(f"❌ [EMAIL_THREAD] Failed to send to {customer_email}: {email_err}")
+        traceback.print_exc()
 
 
 # =========================
@@ -195,86 +275,24 @@ def mark_order_paid(request, order_id):
             "paymentMethod": data.get("paymentMethod", "stripe"),
         })
 
-        # Try to send an email receipt
+        # Try to send an email receipt in a background thread
         try:
             order_data = doc.to_dict()
             # Prioritize email passed in request, then order data
             customer_email = data.get("customerEmail") or order_data.get("customerEmail")
             
-            if customer_email and settings.EMAIL_HOST_USER:
-                items_list = order_data.get("items", [])
-                
-                # Build receipt text
-                items_text = ""
-                html_items = ""
-                total = 0
-                for it in items_list:
-                    price = float(it.get("price", 0))
-                    qty = int(it.get("qty", it.get("quantity", 1)))
-                    item_total = price * qty
-                    items_text += f"- {qty}x {it.get('name', 'Item')} (RM {item_total:.2f})\n"
-                    
-                    html_items += f'''
-                    <tr>
-                      <td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 15px;">{qty}x {it.get('name', 'Item')}</td>
-                      <td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #111827; font-size: 15px;">RM {item_total:.2f}</td>
-                    </tr>
-                    '''
-                    total += item_total
-                
-                # Plain Text Fallback
-                msg = f"Payment Successful!\n\nThank you for your order at MakanSedap.\n\n"
-                msg += f"Order ID: {order_id}\n\nItems Ordered:\n{items_text}\n"
-                msg += f"Total Paid: RM {total:.2f}\n\nYour food is being prepared."
-                
-                # Beautiful HTML Receipt
-                html_msg = f'''
-                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 16px; background-color: #f9fafb;">
-                  <div style="background-color: white; border-radius: 16px; padding: 40px 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); border: 1px solid #f3f4f6;">
-                    
-                    <div style="text-align: center; margin-bottom: 40px;">
-                      <h1 style="color: #f59e0b; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.5px;">MakanSedap</h1>
-                      <div style="display: inline-block; background-color: #ecfdf5; color: #059669; font-weight: 600; padding: 6px 16px; border-radius: 9999px; font-size: 14px; margin-top: 16px;">
-                        Payment Successful
-                      </div>
-                    </div>
-                    
-                    <div style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 32px; border: 1px solid #e2e8f0;">
-                      <p style="margin: 0; color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
-                      <p style="margin: 8px 0 0 0; color: #0f172a; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 15px;">{order_id}</p>
-                    </div>
-                    
-                    <h3 style="color: #0f172a; margin-bottom: 20px; font-size: 18px; font-weight: 700; padding-left: 8px;">Order Summary</h3>
-                    
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
-                      {html_items}
-                      <tr>
-                        <td style="padding: 24px 16px; color: #64748b; font-weight: 500; font-size: 16px;">Total Paid</td>
-                        <td style="padding: 24px 16px; text-align: right; color: #f59e0b; font-weight: 800; font-size: 20px;">RM {total:.2f}</td>
-                      </tr>
-                    </table>
-                    
-                    <div style="text-align: center; margin-top: 40px; padding-top: 32px; border-top: 2px dashed #e2e8f0;">
-                      <p style="color: #334155; font-size: 16px; font-weight: 600; margin: 0;">Your food is currently being prepared! 🍳</p>
-                      <p style="color: #94a3b8; font-size: 14px; margin-top: 12px; margin-bottom: 0;">Thank you for dining with MakanSedap.</p>
-                    </div>
-                    
-                  </div>
-                </div>
-                '''
-                
-                send_mail(
-                    subject=f"Receipt for Order #{order_id[:8]}",
-                    message=msg,
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[customer_email],
-                    fail_silently=False, 
-                    html_message=html_msg,
+            if customer_email:
+                print(f"🚀 [MARK_PAID] Triggering email thread for {customer_email}")
+                thread = threading.Thread(
+                    target=_send_receipt_email_async,
+                    args=(order_id, customer_email, order_data, data)
                 )
-        except Exception as email_err:
-            import traceback
-            print(f"❌ Failed to send email receipt: {email_err}")
-            traceback.print_exc()
+                thread.daemon = True
+                thread.start()
+            else:
+                print("⚠️ [MARK_PAID] No customer email found, skipping receipt.")
+        except Exception as trigger_err:
+            print(f"❌ [MARK_PAID] Error triggering email thread: {trigger_err}")
 
         return JsonResponse({"success": True, "orderId": order_id, "status": "paid"})
 
