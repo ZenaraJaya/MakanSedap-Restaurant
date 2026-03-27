@@ -7,6 +7,7 @@ import { ChefHat, Utensils, ShoppingCart, Headset } from 'lucide-react';
 import { MapPin, Phone, Mail } from 'lucide-react';
 
 function LandingPage() {
+  const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [scrollProgress, setScrollProgress] = useState(0);
   const [visibleSections, setVisibleSections] = useState<{ [key: string]: boolean }>({
     hero: false,
@@ -44,6 +45,15 @@ function LandingPage() {
     handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('localCart');
+      if (stored) {
+        setCart(JSON.parse(stored));
+      }
+    }
   }, []);
 
   return (
@@ -224,9 +234,14 @@ function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               href={`/view-order`}
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300 transition-colors"
+              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300 transition-colors flex items-center gap-2"
             >
               View Order
+              {Object.values(cart).reduce((a, b) => a + b, 0) > 0 && (
+                <span className="inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-0.5 text-xs font-bold text-black border border-black/10">
+                  {Object.values(cart).reduce((a, b) => a + b, 0)}
+                </span>
+              )}
             </Link>
           </div>
         </div>

@@ -193,9 +193,14 @@ function MenuPage() {
           <div className="flex items-center gap-3">
             <Link
               href={`/view-order`}
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300"
+              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300 flex items-center gap-2"
             >
               View Order
+              {Object.values(cart).reduce((a, b) => a + b, 0) > 0 && (
+                <span className="inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-0.5 text-xs font-bold text-black border border-black/10">
+                  {Object.values(cart).reduce((a, b) => a + b, 0)}
+                </span>
+              )}
             </Link>
           </div>
         </div>
