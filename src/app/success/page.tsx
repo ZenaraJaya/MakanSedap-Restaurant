@@ -62,7 +62,10 @@ function SuccessPage() {
             if (res.ok) {
               console.log('✅ Order marked as paid via backend');
             } else {
-              console.error('❌ Failed to mark as paid API:', await res.text());
+              const errText = await res.text();
+              console.error('❌ Failed to mark as paid API:', errText);
+              // Store error in state for user to see (hidden by default)
+              setOrder((prev: any) => ({ ...prev, _apiError: errText }));
             }
           } else {
             // Order was already paid
@@ -215,6 +218,12 @@ function SuccessPage() {
             <p className="text-xs text-white/40">
               A confirmation has been sent to your account. Please keep this receipt for your records.
             </p>
+            {order?._apiError && (
+              <div className="mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-left">
+                <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1">Technical Error (Diagnostics)</p>
+                <p className="text-[10px] text-red-300/80 font-mono break-all">{order._apiError}</p>
+              </div>
+            )}
           </div>
         </div>
 

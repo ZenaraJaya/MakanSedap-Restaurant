@@ -103,15 +103,15 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Zen@jaya_26").strip
 default_host = "smtp.gmail.com" if "gmail.com" in EMAIL_HOST_USER.lower() else "smtp.hostinger.com"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", default_host)
 
-# Default port based on host
-default_port = "587" if "gmail.com" in EMAIL_HOST.lower() else "465"
+# Default port based on host (Switching to 587/TLS as it's more reliable on cloud providers)
+default_port = "587"
 raw_port = os.environ.get("EMAIL_PORT", default_port)
 
 try:
     clean_port = "".join(filter(str.isdigit, str(raw_port)))
-    EMAIL_PORT = int(clean_port) if clean_port else 465
+    EMAIL_PORT = int(clean_port) if clean_port else 587
 except Exception:
-    EMAIL_PORT = 465
+    EMAIL_PORT = 587
 
 # Security settings based on port
 if EMAIL_PORT == 587:
