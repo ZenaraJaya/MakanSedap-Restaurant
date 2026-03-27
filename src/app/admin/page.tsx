@@ -37,6 +37,7 @@ type AnalyticsData = {
   daily_orders?: { date: string; count: number }[];
   category_sales?: { category: string; sales: number }[];
   top_items?: { name: string; sales: number; image?: string }[];
+  today_sales?: { name: string; qty: number; price: number; time: string }[];
 };
 
 /* ───────────────────── Fetch helper ───────────────────── */
@@ -403,13 +404,80 @@ export default function AdminDashboard() {
                         contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
                         formatter={(value: any) => [`RM ${Number(value).toLocaleString()}`, 'Sales']}
                       />
-                      <Bar dataKey="sales" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                    <Bar dataKey="sales" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          )}
+
+            {/* Today's Sales Table */}
+            <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden shadow-2xl">
+              <div className="border-b border-white/10 bg-white/[0.02] px-6 py-4 flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <ShoppingCart size={16} className="text-amber-400" />
+                  Items Bought Today
+                </h3>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-2 py-1 rounded">
+                    Live Sales Feed
+                  </span>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-sans">
+                  <thead>
+                    <tr className="border-b border-white/5 bg-white/[0.01] text-[10px] font-bold uppercase tracking-[0.2em] text-white/20">
+                      <th className="px-6 py-4">Article Name</th>
+                      <th className="px-6 py-4">Quantity</th>
+                      <th className="px-6 py-4">Unit Price</th>
+                      <th className="px-6 py-4">Subtotal</th>
+                      <th className="px-6 py-4 text-right">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {analytics.today_sales && analytics.today_sales.length > 0 ? (
+                      analytics.today_sales.map((sale, idx) => (
+                        <tr key={idx} className="hover:bg-white/[0.02] transition-colors group">
+                          <td className="px-6 py-5">
+                            <span className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                              {sale.name}
+                            </span>
+                          </td>
+                          <td className="px-6 py-5">
+                            <span className="inline-flex items-center rounded-lg bg-amber-400/5 border border-amber-400/10 px-2.5 py-1 text-[11px] font-black text-amber-400">
+                              {sale.qty}x
+                            </span>
+                          </td>
+                          <td className="px-6 py-5 text-xs font-medium text-white/40">
+                            RM {Number(sale.price).toFixed(2)}
+                          </td>
+                          <td className="px-6 py-5 text-sm font-black text-emerald-400/80">
+                            RM {(sale.price * sale.qty).toFixed(2)}
+                          </td>
+                          <td className="px-6 py-5 text-right">
+                            <span className="inline-flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md group-hover:bg-amber-400/10 group-hover:text-amber-400/60 transition-all">
+                              {sale.time}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-20 text-center">
+                          <div className="flex flex-col items-center justify-center text-white/10">
+                             <ShoppingCart size={40} strokeWidth={1} className="mb-4 opacity-20" />
+                             <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Transactions Recorded Today</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
 
           {/* ═══════════ ANALYTICS TAB ═══════════ */}
           {currentTab === 'analytics' && (

@@ -323,9 +323,25 @@ def analytics(request):
     item_sales_map = {}  # Track top selling items
     item_image_map = {}  # Track images for those items
 
+    from datetime import datetime, date
+    today_date = date.today()
+    today_sales = []
+
     for odoc in order_docs:
         odata = odoc.to_dict()
         items = odata.get("items", [])
+        created = odata.get("createdAt")
+        
+        is_today = False
+        if created:
+            # Firestore timestamps usually have a .date() method or can be converted
+            try:
+                if created.date() == today_date:
+                    is_today = True
+            except AttributeError:
+                 # Fallback if it's already a date or different type
+                 pass
+
         for it in items:
             qty = it.get("qty", it.get("quantity", 1))
             price = float(it.get("price", 0))
@@ -340,12 +356,19 @@ def analytics(request):
             item_sales_map[name] = item_sales_map.get(name, 0) + qty
             if img:
                 item_image_map[name] = img
+            
+            # If the order was today, add to today's sales list
+            if is_today:
+                today_sales.append({
+                    "name": name,
+                    "qty": qty,
+                    "price": price,
+                    "time": created.strftime("%H:%M") if created else "N/A"
+                })
 
         # Daily breakdown
-        created = odata.get("createdAt")
         if created:
             try:
-                # Firestore timestamp to datetime helper if needed, but stream() returns datetime objects or similar
                 day_label = created.strftime("%a")
             except Exception:
                 day_label = "N/A"
@@ -377,6 +400,7 @@ def analytics(request):
             for cat, sales in category_sales_map.items()
         ],
         "top_items": top_items,
+        "today_sales": today_sales,
     }
 
     return JsonResponse(analytics_data)
