@@ -10,7 +10,11 @@ export async function POST(request: NextRequest) {
 
     // Call the Django backend from the Node.js server to avoid browser CORS/blocks
     const djangoBaseUrl = process.env.DJANGO_API_URL || 'http://127.0.0.1:8000';
-    const djangoRes = await fetch(`${djangoBaseUrl}/api/orders/${orderId}/pay/`, {
+    const targetUrl = `${djangoBaseUrl}/api/orders/${orderId}/pay/`;
+    
+    console.log('🚀 [MARK-PAID] Calling Backend:', targetUrl);
+
+    const djangoRes = await fetch(targetUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
