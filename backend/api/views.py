@@ -407,29 +407,29 @@ def analytics(request):
                     pass
 
         # ── Top Items ──
+        # Fetch current active menu items to filter top performers
+        menu_items_ref = db.collection("menuItems").stream()
+        active_item_names = {it.to_dict().get("name") for it in menu_items_ref if it.to_dict().get("name")}
+
+        # Build top items list (filtered by current menu)
         sorted_items = sorted(item_sales_map.items(), key=lambda x: x[1], reverse=True)
         top_items = [
-            {"name": name, "sales": sales, "image": item_image_map.get(name)} 
-            for name, sales in sorted_items[:5]
-        ]
-
-        # ── Menu item count ──
-        menu_docs = list(db.collection("menuItems").stream())
-
-        avg_order_value = round(total_revenue / total_orders, 2) if total_orders else 0
+            {"name": name, "sales": sales, "image": item_image_map.get(name)}
+            for name, sales in sorted_items if name in active_item_names
+        ][:4]
 
         analytics_data = {
             "total_orders": total_orders,
             "total_revenue": round(total_revenue, 2),
-            "menu_items": len(menu_docs),
-            "avg_order_value": avg_order_value,
+            "menu_items": len(active_item_names),
+            "avg_order_value": round(total_revenue / total_orders, 2) if total_orders > 0 else 0,
             "daily_orders": [
                 {"date": day, "count": count}
                 for day, count in daily_orders_map.items()
             ],
             "category_sales": [
                 {"category": cat, "sales": round(sales, 2)}
-                for cat, sales in category_sales_map.items()
+                for cat, sales in sorted(category_sales_map.items(), key=lambda x: x[1], reverse=True)
             ],
             "top_items": top_items,
             "today_sales": today_sales,
