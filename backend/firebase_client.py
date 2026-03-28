@@ -21,7 +21,7 @@ from google.auth.exceptions import DefaultCredentialsError
 @lru_cache
 def _init_app() -> firebase_admin.App:
     # Option 1: full JSON in env (safer for local dev with .env)
-    sa_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+    sa_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON") or os.getenv("FIREBASE_CREDENTIALS_JSON")
     if sa_json:
         cred_dict = json.loads(sa_json)
         cred = credentials.Certificate(cred_dict)  # type: ignore[arg-type]
