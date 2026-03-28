@@ -331,17 +331,28 @@ def analytics(request):
     for odoc in order_docs:
         odata = odoc.to_dict()
         items = odata.get("items", [])
+
         created = odata.get("createdAt")
-        
         is_today = False
+        
+        # Robust date handling
+        created_dt = None
         if created:
-            # Firestore timestamps usually have a .date() method or can be converted
+            if hasattr(created, 'date'):
+                created_dt = created
+            elif isinstance(created, str):
+                try:
+                    from django.utils.dateparse import parse_datetime
+                    created_dt = parse_datetime(created)
+                except Exception:
+                    pass
+        
+        if created_dt:
             try:
-                if created.date() == today_date:
+                if created_dt.date() == today_date:
                     is_today = True
-            except AttributeError:
-                 # Fallback if it's already a date or different type
-                 pass
+            except Exception:
+                pass
 
         for it in items:
             qty = it.get("qty", it.get("quantity", 1))
@@ -353,36 +364,45 @@ def analytics(request):
             cat = it.get("category", "Other") or "Other"
             category_sales_map[cat] = category_sales_map.get(cat, 0) + price * qty
 
-            # Item sales (by quantity)
             item_sales_map[name] = item_sales_map.get(name, 0) + qty
             if img:
                 item_image_map[name] = img
             
-            # If the order was today, add to today's sales list
+            # Formatting strings safely
+            time_str = "N/A"
+            date_str = "N/A"
+            if created_dt:
+                try:
+                    time_str = created_dt.strftime("%H:%M")
+                    date_str = created_dt.strftime("%Y-%m-%d %H:%M")
+                except Exception:
+                    pass
+            elif isinstance(created, str):
+                date_str = created[:16] # Fallback for raw string
+            
             if is_today:
                 today_sales.append({
                     "name": name,
                     "qty": qty,
                     "price": price,
-                    "time": created.strftime("%H:%M") if created else "N/A"
+                    "time": time_str
                 })
             
-            # Collected for all-time historical view
             all_sales.append({
-                "orderId": order_id, # Added orderId here
+                "orderId": odoc.id,
                 "name": name,
                 "qty": qty,
                 "price": price,
-                "date": created.strftime("%Y-%m-%d %H:%M") if created else "N/A"
+                "date": date_str
             })
 
         # Daily breakdown
-        if created:
+        if created_dt:
             try:
-                day_label = created.strftime("%a")
+                day_label = created_dt.strftime("%a")
+                daily_orders_map[day_label] = daily_orders_map.get(day_label, 0) + 1
             except Exception:
-                day_label = "N/A"
-            daily_orders_map[day_label] = daily_orders_map.get(day_label, 0) + 1
+                pass
 
     # ── Top Items ──
     sorted_items = sorted(item_sales_map.items(), key=lambda x: x[1], reverse=True)
