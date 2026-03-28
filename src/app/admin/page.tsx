@@ -196,13 +196,35 @@ export default function AdminDashboard() {
       item.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  /* ─── Analytics Sorting ─── */
+  /* ─── Analytics Sorting & Filtering ─── */
+  const [dateFilter, setDateFilter] = useState('all');
   const [analyticsSort, setAnalyticsSort] = useState<{ key: string; direction: 'asc' | 'desc' }>({
     key: 'date',
     direction: 'desc'
   });
 
-  const sortedAllSales = [...(analytics.all_sales || [])].sort((a, b) => {
+  const filteredAllSales = (analytics.all_sales || []).filter(sale => {
+    if (dateFilter === 'all') return true;
+    
+    const saleDate = new Date(sale.date);
+    const now = new Date();
+    
+    // Normalize dates to midnight for accurate day-based filtering
+    const saleMidnight = new Date(saleDate.getFullYear(), saleDate.getMonth(), saleDate.getDate());
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const diffTime = todayMidnight.getTime() - saleMidnight.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (dateFilter === 'yesterday') return diffDays === 1;
+    if (dateFilter === '3days') return diffDays <= 3;
+    if (dateFilter === 'week') return diffDays <= 7;
+    if (dateFilter === 'month') return diffDays <= 30;
+    
+    return true;
+  });
+
+  const sortedAllSales = [...filteredAllSales].sort((a, b) => {
     const { key, direction } = analyticsSort;
     const valA = a[key as keyof typeof a];
     const valB = b[key as keyof typeof b];
@@ -535,17 +557,17 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="space-y-6">
                 {/* Top Selling Items (Visual Gallery) */}
-                <div className="lg:col-span-2 space-y-4">
+                <div className="space-y-4">
                   <div className="flex items-center justify-between px-2">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <TrendingUp size={16} className="text-amber-400" />
                       Top Performing Items
                     </h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                    {analytics.top_items?.slice(0, 3).map((item, idx) => (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {analytics.top_items?.slice(0, 4).map((item, idx) => (
                       <div key={item.name} className="group overflow-hidden rounded-2xl border border-white/10 bg-[#0d1117] transition-all hover:border-amber-400/30 hover:shadow-2xl hover:shadow-amber-900/10">
                         <div className="relative h-40 overflow-hidden">
                           {item.image ? (
@@ -586,106 +608,93 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Sales by Category (Enhanced for Analytics) */}
-                <div className="rounded-2xl border border-white/10 bg-[#0d1117] p-6 shadow-xl h-full flex flex-col">
-                  <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
-                    <Package size={16} className="text-purple-400" />
-                    Revenue Mix
-                  </h3>
-                  <div className="flex-1 flex flex-col justify-center">
-                    <ResponsiveContainer width="100%" height={260}>
-                      <BarChart data={analytics.category_sales || []} barSize={24}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                        <XAxis dataKey="category" stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="rgba(255,255,255,0.3)" tick={{ fontSize: 10 }} />
-                        <Tooltip
-                          contentStyle={{ backgroundColor: '#1a1f2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                          formatter={(value: any) => [`RM ${Number(value).toLocaleString()}`, 'Revenue']}
-                        />
-                        <Bar dataKey="sales" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                    <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
-                        {analytics.category_sales?.slice(0, 3).map(cat => (
-                            <div key={cat.category} className="flex items-center justify-between">
-                                <span className="text-xs text-white/50">{cat.category}</span>
-                                <span className="text-xs font-bold text-white">RM {cat.sales.toLocaleString()}</span>
-                            </div>
-                        ))}
+                {/* Historical Item Sales Table (Full Width) */}
+                <div className="rounded-2xl border border-white/10 bg-[#0d1117] overflow-hidden shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                  <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                    <div className="flex items-center gap-6">
+                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                            <ShoppingCart size={16} className="text-amber-400" />
+                            Historical Item Sales
+                        </h3>
+                        <div className="h-4 w-[1px] bg-white/10" />
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-white/30 uppercase tracking-wider">Filter Date:</span>
+                            <select
+                                value={dateFilter}
+                                onChange={(e) => setDateFilter(e.target.value)}
+                                className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-amber-400 focus:outline-none focus:border-amber-400 transition-all font-black cursor-pointer hover:bg-white/10 appearance-none min-w-[120px]"
+                            >
+                                <option value="all" className="bg-[#1a1f2e]">All Time</option>
+                                <option value="yesterday" className="bg-[#1a1f2e]">Yesterday</option>
+                                <option value="3days" className="bg-[#1a1f2e]">Last 3 Days</option>
+                                <option value="week" className="bg-[#1a1f2e]">Last Week</option>
+                                <option value="month" className="bg-[#1a1f2e]">Last Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="text-[10px] uppercase font-bold text-white/20 tracking-widest bg-white/5 px-2 py-1 rounded">
+                      {filteredAllSales.length} Total Entries Found
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Historical Item Sales Table */}
-              <div className="rounded-2xl border border-white/10 bg-[#0d1117] overflow-hidden shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <ShoppingCart size={16} className="text-amber-400" />
-                    Historical Item Sales
-                  </h3>
-                  <div className="text-[10px] uppercase font-bold text-white/20 tracking-widest bg-white/5 px-2 py-1 rounded">
-                    Sortable by Column
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-[#141f30] border-b border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">
-                      <tr>
-                        <th onClick={() => toggleSort('name')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors">
-                          <div className="flex items-center gap-2">
-                            Article Name {analyticsSort.key === 'name' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
-                          </div>
-                        </th>
-                        <th onClick={() => toggleSort('qty')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors">
-                          <div className="flex items-center gap-2">
-                            Quantity {analyticsSort.key === 'qty' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
-                          </div>
-                        </th>
-                        <th onClick={() => toggleSort('price')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors">
-                          <div className="flex items-center gap-2">
-                            Unit Price {analyticsSort.key === 'price' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
-                          </div>
-                        </th>
-                        <th onClick={() => toggleSort('date')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            Date & Time {analyticsSort.key === 'date' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {sortedAllSales.length > 0 ? (
-                        sortedAllSales.map((sale, idx) => (
-                          <tr key={idx} className="hover:bg-white/[0.02] transition-colors group">
-                            <td className="px-6 py-5">
-                                <span className="font-bold text-white group-hover:text-amber-400 transition-colors">{sale.name}</span>
-                            </td>
-                            <td className="px-6 py-5">
-                              <span className="inline-flex items-center rounded-lg bg-amber-400/5 border border-amber-400/10 px-2.5 py-1 text-[11px] font-black text-amber-400">
-                                {sale.qty}x
-                              </span>
-                            </td>
-                            <td className="px-6 py-5 text-xs font-medium text-white/40">RM {Number(sale.price).toFixed(2)}</td>
-                            <td className="px-6 py-5 text-right">
-                                <span className="inline-flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md group-hover:bg-amber-400/10 group-hover:text-amber-400/60 transition-all font-mono">
-                                    {sale.date}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-[#141f30] border-b border-white/10 text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">
+                        <tr>
+                          <th onClick={() => toggleSort('name')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors">
+                            <div className="flex items-center gap-2">
+                              Article Name {analyticsSort.key === 'name' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
+                            </div>
+                          </th>
+                          <th onClick={() => toggleSort('qty')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors">
+                            <div className="flex items-center gap-2">
+                              Quantity {analyticsSort.key === 'qty' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
+                            </div>
+                          </th>
+                          <th onClick={() => toggleSort('price')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors">
+                            <div className="flex items-center gap-2">
+                              Unit Price {analyticsSort.key === 'price' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
+                            </div>
+                          </th>
+                          <th onClick={() => toggleSort('date')} className="px-6 py-4 cursor-pointer hover:text-amber-400 transition-colors text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              Date & Time {analyticsSort.key === 'date' && (analyticsSort.direction === 'asc' ? '↑' : '↓')}
+                            </div>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {sortedAllSales.length > 0 ? (
+                          sortedAllSales.map((sale, idx) => (
+                            <tr key={idx} className="hover:bg-white/[0.02] transition-colors group">
+                              <td className="px-6 py-5">
+                                  <span className="font-bold text-white group-hover:text-amber-400 transition-colors">{sale.name}</span>
+                              </td>
+                              <td className="px-6 py-5">
+                                <span className="inline-flex items-center rounded-lg bg-amber-400/5 border border-amber-400/10 px-2.5 py-1 text-[11px] font-black text-amber-400">
+                                  {sale.qty}x
                                 </span>
+                              </td>
+                              <td className="px-6 py-5 text-xs font-medium text-white/40">RM {Number(sale.price).toFixed(2)}</td>
+                              <td className="px-6 py-5 text-right">
+                                  <span className="inline-flex items-center gap-2 text-[10px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md group-hover:bg-amber-400/10 group-hover:text-amber-400/60 transition-all font-mono">
+                                      {sale.date}
+                                  </span>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-20 text-center">
+                                <div className="flex flex-col items-center justify-center text-white/10">
+                                   <Package size={40} strokeWidth={1} className="mb-4 opacity-20" />
+                                   <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Historical Data Available for this range</p>
+                                </div>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={4} className="px-6 py-20 text-center">
-                              <div className="flex flex-col items-center justify-center text-white/10">
-                                 <Package size={40} strokeWidth={1} className="mb-4 opacity-20" />
-                                 <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Historical Data Available</p>
-                              </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
