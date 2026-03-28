@@ -376,7 +376,7 @@ def analytics(request):
         # ── Top Items ──
         # Fetch current active menu items to filter top performers
         menu_items_ref = db.collection("menuItems").stream()
-        active_item_names = {it.to_dict().get("name") for it in menu_items_ref if it.to_dict().get("name")}
+        active_item_names = {it.to_dict().get("name") for it in menu_items_ref if it.to_dict().get("name") and it.to_dict().get("is_available") != False}
 
         # Build top items list (filtered by current menu)
         sorted_items = sorted(item_sales_map.items(), key=lambda x: x[1], reverse=True)
@@ -418,13 +418,22 @@ def db_check(request):
     try:
         db = get_db()
         results = {}
-        for coll in ["orders", "menuItems", "menu_items", "categories", "reviews"]:
+        for coll in ["orders", "menuItems", "reviews"]:
             docs = list(db.collection(coll).limit(1).stream())
             results[coll] = {
                 "count_hint": "Exists" if docs else "Empty/Missing",
                 "sample": docs[0].to_dict() if docs else None
             }
-        return JsonResponse({"status": "connected", "database": results})
+        
+        # All menu item names for debugging
+        all_menu = db.collection("menuItems").stream()
+        menu_names = [it.to_dict().get("name") for it in all_menu if it.to_dict().get("name")]
+
+        return JsonResponse({
+            "status": "connected", 
+            "menu_names": menu_names,
+            "database": results
+        })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
