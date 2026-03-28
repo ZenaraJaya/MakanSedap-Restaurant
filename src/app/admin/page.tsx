@@ -242,18 +242,21 @@ export default function AdminDashboard() {
        itemMap[sale.name].sales += sale.qty;
     });
 
-    // Build image lookup from original analytics
+    // Build image lookup and active filter
     const imageMap: Record<string, string> = {};
+    const activeNames = new Set(items.map(i => i.name));
     (analytics.top_items || []).forEach(i => { if (i.name && i.image) imageMap[i.name] = i.image; });
 
-    const topItems = Object.entries(itemMap).map(([name, data]) => ({
-        name,
-        sales: data.sales,
-        image: imageMap[name] || '' 
-    })).sort((a,b) => b.sales - a.sales);
+    const topItems = Object.entries(itemMap)
+        .filter(([name]) => activeNames.has(name)) // <--- Only show active items
+        .map(([name, data]) => ({
+            name,
+            sales: data.sales,
+            image: imageMap[name] || '' 
+        })).sort((a,b) => b.sales - a.sales);
 
     return { totalRevenue, avgOrderValue, totalOrders: uniqueOrders, topItems };
-  }, [filteredAllSales, analytics.top_items]);
+  }, [filteredAllSales, analytics.top_items, items]);
 
   const sortedAllSales = [...filteredAllSales].sort((a, b) => {
     const { key, direction } = analyticsSort;
