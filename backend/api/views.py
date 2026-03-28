@@ -130,37 +130,46 @@ def health(request):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def menu_list(request):
-    db = get_db()
-    col = db.collection("menuItems")
-
-    if request.method == "GET":
-        docs = col.stream()
-        items = []
-        for doc in docs:
-            d = doc.to_dict()
-            d["id"] = doc.id
-            items.append(d)
-        return JsonResponse(items, safe=False)
-
-    # POST – create
     try:
-        data = json.loads(request.body)
-        doc_ref = col.add({
-            "name": data.get("name", ""),
-            "description": data.get("description", ""),
-            "price": float(data.get("price", 0)),
-            "category": data.get("category", ""),
-            "image": data.get("image", ""),
-            "is_available": data.get("is_available", True),
-        })
-        new_id = doc_ref[1].id
-        result = {**data, "id": new_id}
+        db = get_db()
+        col = db.collection("menuItems")
 
-        _notify_ws({"type": "MENU_UPDATED", "item": result})
-        return JsonResponse(result, status=201)
+        if request.method == "GET":
+            docs = col.stream()
+            items = []
+            for doc in docs:
+                d = doc.to_dict()
+                d["id"] = doc.id
+                items.append(d)
+            response = JsonResponse(items, safe=False)
+        else:
+            # POST – create
+            data = json.loads(request.body)
+            doc_ref = col.add({
+                "name": data.get("name", ""),
+                "description": data.get("description", ""),
+                "price": float(data.get("price", 0)),
+                "category": data.get("category", ""),
+                "image": data.get("image", ""),
+                "is_available": data.get("is_available", True),
+            })
+            new_id = doc_ref[1].id
+            result = {**data, "id": new_id}
+            _notify_ws({"type": "MENU_UPDATED", "item": result})
+            response = JsonResponse(result, status=201)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
+        import traceback
+        response = JsonResponse({
+            "error": str(e), 
+            "traceback": traceback.format_exc()
+        }, status=500)
+    
+    # Add Cache-Control
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 @csrf_exempt
