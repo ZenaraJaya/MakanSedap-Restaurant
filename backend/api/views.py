@@ -369,6 +369,7 @@ def analytics(request):
             
             # Collected for all-time historical view
             all_sales.append({
+                "orderId": order_id, # Added orderId here
                 "name": name,
                 "qty": qty,
                 "price": price,
