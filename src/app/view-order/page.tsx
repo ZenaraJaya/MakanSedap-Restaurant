@@ -229,31 +229,6 @@ function ViewOrderPage() {
 
       <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden pb-24">
         {/* Header with Perfect Centering */}
-        <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8 relative">
-            
-            <div className="flex items-center gap-3">
-              <img
-                src="https://images.unsplash.com/photo-1644920437956-388353e26e28?q=80&w=627&auto=format&fit=crop"
-                alt="MakanSedap Logo"
-                className="h-9 w-9 rounded-xl object-cover"
-              />
-              <div className="leading-tight">
-                <p className="text-sm font-semibold tracking-wide text-amber-300">MakanSedap</p>
-              </div>
-            </div>
-
-            <nav className="hidden items-center gap-6 text-sm text-white/80 md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <a className="hover:text-white transition-colors" href="/#home">Home</a>
-              <a className="hover:text-white transition-colors" href="/#about">About</a>
-              <Link href={`/menu`} className="hover:text-white transition-colors">Menu</Link>
-              <a className="hover:text-white transition-colors" href="/#contact">Contact</a>
-              <Link className="hover:text-white transition-colors" href="/reviews">Reviews</Link>
-            </nav>
-
-            <div className="w-9"></div>
-          </div>
-        </header>
 
         <main className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8 lg:pt-12">
           <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Shopping Cart</h1>

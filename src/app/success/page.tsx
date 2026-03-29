@@ -114,25 +114,6 @@ function SuccessPage() {
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <img
-              src="https://images.unsplash.com/photo-1644920437956-388353e26e28?q=80&w=627&auto=format&fit=crop"
-              alt="logo"
-              className="h-9 w-9 rounded-xl object-cover"
-            />
-            <p className="text-sm font-semibold tracking-wide text-amber-300">MakanSedap</p>
-          </div>
-          <Link
-            href="/"
-            className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-2 text-sm font-semibold text-white/80 hover:bg-white/10 transition-all"
-          >
-            <Home size={16} />
-            Home
-          </Link>
-        </div>
-      </header>
 
       <main className="mx-auto max-w-2xl px-4 py-12">
 

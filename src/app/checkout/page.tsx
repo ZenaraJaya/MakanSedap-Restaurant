@@ -176,23 +176,6 @@ function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white pb-24">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <img src="https://images.unsplash.com/photo-1644920437956-388353e26e28?q=80&w=627&auto=format&fit=crop" alt="logo" className="h-9 w-9 rounded-xl object-cover" />
-            <p className="text-sm font-semibold tracking-wide text-amber-300">MakanSedap</p>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/80 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <a className="hover:text-white" href="/#home">Home</a>
-            <a className="hover:text-white transition-colors" href="/#about">About</a>
-            <Link href={`/menu`} className="hover:text-white">Menu</Link>
-            <a className="hover:text-white" href="/#contact">Contact</a>
-          </nav>
-
-          <div />
-        </div>
-      </header>
 
       <main className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-extrabold text-white mb-6">Checkout</h1>
