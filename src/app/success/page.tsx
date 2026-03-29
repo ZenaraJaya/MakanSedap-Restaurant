@@ -23,6 +23,8 @@ function SuccessPage() {
     // 1. Immediately clear the currentOrderId so they don't reuse it by accident
     if (typeof window !== 'undefined') {
       localStorage.removeItem('currentOrderId');
+      localStorage.removeItem('localCart');
+      window.dispatchEvent(new Event('cartUpdated'));
     }
 
     // 2. Auth handling

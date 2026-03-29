@@ -127,6 +127,7 @@ function CheckoutPage() {
         // Redirect to success
         if (typeof window !== 'undefined') {
           localStorage.removeItem('localCart');
+          window.dispatchEvent(new Event('cartUpdated'));
         }
         router.push(`/success?orderId=${finalOrderId}&paymentMethod=counter`);
         return;
@@ -154,6 +155,7 @@ function CheckoutPage() {
       if (data.url) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('localCart');
+          window.dispatchEvent(new Event('cartUpdated'));
         }
         window.location.href = data.url;
       }
