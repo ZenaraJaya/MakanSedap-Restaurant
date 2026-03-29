@@ -53,12 +53,15 @@ function LandingPage() {
       const stored = localStorage.getItem('localCart');
       if (stored) {
         setCart(JSON.parse(stored));
+        // Trigger navbar update just in case
+        window.dispatchEvent(new Event('cartUpdated'));
       }
     }
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden selection:bg-amber-400 selection:text-black">
+      {/* Navbar is now global in layout.tsx */}
       {/* Scroll Progress Bar */}
       <div
         className="fixed top-0 left-0 h-1 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 z-50 transition-all duration-300"

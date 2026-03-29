@@ -5,12 +5,47 @@ import Link from 'next/link';
 import { Menu, X, ChevronDown, ChevronRight, ShoppingCart } from 'lucide-react';
 
 interface NavbarProps {
-  cart: { [key: string]: number };
+  cart?: { [key: string]: number };
 }
 
-export default function Navbar({ cart }: NavbarProps) {
+export default function Navbar({ cart: initialCart }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  // Sync cart count from localStorage or props
+  useEffect(() => {
+    const updateCartCount = () => {
+      const stored = localStorage.getItem('localCart');
+      if (stored) {
+        const cartData = JSON.parse(stored);
+        const count = Object.values(cartData).reduce((sum, qty) => (sum as number) + (qty as number), 0);
+        setCartCount(count as number);
+      } else {
+        setCartCount(0);
+      }
+    };
+
+    updateCartCount();
+
+    // Listen for storage changes (cross-tab)
+    window.addEventListener('storage', updateCartCount);
+    // Listen for custom cart update event (same-tab)
+    window.addEventListener('cartUpdated', updateCartCount);
+
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+      window.removeEventListener('cartUpdated', updateCartCount);
+    };
+  }, []);
+
+  // Also update if props change (for backward compatibility if still used in some pages)
+  useEffect(() => {
+    if (initialCart) {
+      const count = Object.values(initialCart).reduce((sum, qty) => (sum as number) + (qty as number), 0);
+      setCartCount(count as number);
+    }
+  }, [initialCart]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,7 +55,6 @@ export default function Navbar({ cart }: NavbarProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
 
   const navLinks = [
     { name: 'Home', href: '/#home' },

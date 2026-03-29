@@ -7,7 +7,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import Link from 'next/link';
 import { Plus, Minus } from 'lucide-react';
-import Navbar from '@/components/Navbar';
 
 function normalizeImageUrl(raw: string): string {
   const url = raw.trim();
@@ -111,6 +110,7 @@ function MenuPage() {
         newCart[item.id] = next;
       }
       localStorage.setItem('localCart', JSON.stringify(newCart));
+      window.dispatchEvent(new Event('cartUpdated'));
       return newCart;
     });
   };
@@ -124,6 +124,7 @@ function MenuPage() {
     setCart((prev) => {
       const newCart = { ...prev, [item.id]: (prev[item.id] || 0) + 1 };
       localStorage.setItem('localCart', JSON.stringify(newCart));
+      window.dispatchEvent(new Event('cartUpdated'));
       return newCart;
     });
     showToast('Cart updated');
@@ -170,7 +171,7 @@ function MenuPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden">
-      <Navbar cart={cart} />
+      {/* Navbar is now global in layout.tsx */}
 
       <div className="mx-auto max-w-7xl p-6">
         <h1 className="text-4xl font-extrabold text-white mb-8">Menu</h1>

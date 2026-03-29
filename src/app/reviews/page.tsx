@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, where } from 'firebase/firestore';
 import { Star, MessageSquarePlus, User, Loader2, Receipt } from 'lucide-react';
-import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
@@ -121,8 +120,10 @@ function ReviewsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0f18] pb-24">
-      {/* Toast Notification */}
+    <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden">
+      {/* Navbar is now global in layout.tsx */}
+      
+      {/* Header Section */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg border ${
           toast.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
@@ -133,7 +134,6 @@ function ReviewsPage() {
 
       
 
-      <Navbar cart={cart} />
 
       {/* Hero Header */}
       <div className="relative pt-24 pb-12 mb-8 overflow-hidden">
@@ -155,23 +155,6 @@ function ReviewsPage() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes antigravity {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes antigravity-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        @keyframes antigravity-fast {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-        .antigravity { animation: antigravity 2s ease-in-out infinite; }
-        .antigravity-slow { animation: antigravity-slow 4s ease-in-out infinite; }
-        .antigravity-fast { animation: antigravity-fast 3s ease-in-out infinite; }
-      `}</style>
 
       {/* Reviews Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
