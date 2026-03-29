@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, where } from 'firebase/firestore';
 import { Star, MessageSquarePlus, User, Loader2, Receipt } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
@@ -132,55 +133,7 @@ function ReviewsPage() {
 
       
 
-      {/* Top nav */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img 
-              src="https://images.unsplash.com/photo-1644920437956-388353e26e28?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="MakanSedap Logo"
-              className="h-9 w-9 rounded-xl object-cover"
-            />
-            <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-wide text-amber-300">
-                MakanSedap
-              </p>
-            </div>
-          </Link>
-
-          <nav className="hidden items-center gap-6 text-sm text-white/80 md:flex">
-            <Link className="hover:text-white transition-colors" href="/">Home</Link>
-            <Link className="hover:text-white transition-colors" href="/#about">About</Link>
-            
-            {/* Dropdown Menu Container */}
-            <div className="relative group py-2">
-              <Link
-                href="/menu"
-                className="hover:text-white flex items-center gap-1 transition-colors"
-              >
-                Menu
-              </Link>
-            </div>
-
-            <Link className="hover:text-white transition-colors" href="/#contact">Contact</Link>
-            <Link className="hover:text-white transition-colors" href="/reviews">Reviews</Link>
-          </nav>
-          
-          <div className="flex items-center gap-3">
-            <Link
-              href="/view-order"
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300 transition-colors flex items-center gap-2"
-            >
-              View Order
-              {Object.values(cart).reduce((a, b) => a + b, 0) > 0 && (
-                <span className="inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-0.5 text-xs font-bold text-black border border-black/10">
-                  {Object.values(cart).reduce((a, b) => a + b, 0)}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar cart={cart} />
 
       {/* Hero Header */}
       <div className="relative pt-24 pb-12 mb-8 overflow-hidden">

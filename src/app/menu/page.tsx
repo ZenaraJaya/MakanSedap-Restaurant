@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import Link from 'next/link';
 import { Plus, Minus } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 
 function normalizeImageUrl(raw: string): string {
   const url = raw.trim();
@@ -169,42 +170,7 @@ function MenuPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <img
-              src="https://images.unsplash.com/photo-1644920437956-388353e26e28?q=80&w=627&auto=format&fit=crop"
-              alt="MakanSedap Logo"
-              className="h-9 w-9 rounded-xl object-cover"
-            />
-            <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-wide text-amber-300">MakanSedap</p>
-            </div>
-          </div>
-
-          <nav className="hidden items-center gap-6 text-sm text-white/80 md:flex">
-            <a className="hover:text-white" href="/#home">Home</a>
-            <a className="hover:text-white" href="/#about">About</a>
-            <Link href={`/menu`} className="hover:text-white">Menu</Link>
-            <a className="hover:text-white" href="/#contact">Contact</a>
-            <Link className="hover:text-white transition-colors" href="/reviews">Reviews</Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/view-order`}
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300 flex items-center gap-2"
-            >
-              View Order
-              {Object.values(cart).reduce((a, b) => a + b, 0) > 0 && (
-                <span className="inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-0.5 text-xs font-bold text-black border border-black/10">
-                  {Object.values(cart).reduce((a, b) => a + b, 0)}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar cart={cart} />
 
       <div className="mx-auto max-w-7xl p-6">
         <h1 className="text-4xl font-extrabold text-white mb-8">Menu</h1>

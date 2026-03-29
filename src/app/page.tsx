@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef, Suspense } from 'react';
 import { ChefHat, Utensils, ShoppingCart, Headset } from 'lucide-react';
 import { MapPin, Phone, Mail } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 
 function LandingPage() {
   const [cart, setCart] = useState<{ [key: string]: number }>({});
@@ -64,75 +65,11 @@ function LandingPage() {
         style={{ width: `${scrollProgress}%` }}
       />
 
-      {/* Scroll-Driven Animations Styles */}
       <style>{`
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-50px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(50px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes rotateIn {
-          from { opacity: 0; transform: rotate(-5deg) scale(0.95); }
-          to { opacity: 1; transform: rotate(0deg) scale(1); }
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-
-        @keyframes antigravity {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-
-        @keyframes antigravity-slow {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-25px); }
-        }
-
-        @keyframes antigravity-fast {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-
-        .antigravity { animation: antigravity 2s ease-in-out infinite; }
-        .antigravity-slow { animation: antigravity-slow 5s ease-in-out infinite; }
-        .antigravity-fast { animation: antigravity-fast 3s ease-in-out infinite; }
-
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-          50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
-        }
-
         @keyframes shimmer {
           0% { background-position: -1000px 0; }
           100% { background-position: 1000px 0; }
         }
-
-        .animate-on-scroll.visible { animation: fadeInUp 0.8s ease-out forwards; }
-        .animate-slide-left.visible { animation: slideInLeft 0.8s ease-out forwards; }
-        .animate-slide-right.visible { animation: slideInRight 0.8s ease-out forwards; }
-        .animate-scale.visible { animation: scaleIn 0.8s ease-out forwards; }
-        .animate-rotate.visible { animation: rotateIn 0.8s ease-out forwards; }
-
-        .float-animation { animation: float 3s ease-in-out infinite; }
-        .glow-animation { animation: glow 2s ease-in-out infinite; }
 
         .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .feature-card:hover {
@@ -163,89 +100,7 @@ function LandingPage() {
         .btn-hover:hover::before { left: 100%; }
       `}</style>
 
-      {/* Top nav */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0f19]/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <img
-              src="https://images.unsplash.com/photo-1644920437956-388353e26e28?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="MakanSedap Logo"
-              className="h-9 w-9 rounded-xl object-cover"
-            />
-            <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-wide text-amber-300">
-                MakanSedap
-              </p>
-            </div>
-          </div>
-
-          <nav className="hidden items-center gap-6 text-sm text-white/80 md:flex">
-            <a className="hover:text-white transition-colors" href="#home">Home</a>
-            <a className="hover:text-white transition-colors" href="#about">About</a>
-
-            {/* Dropdown Menu Container */}
-            <div className="relative group py-2">
-              <Link
-                href="/menu"
-                className="hover:text-white flex items-center gap-1 transition-colors"
-              >
-                Menu
-                {/* Chevron Icon */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </Link>
-
-              {/* Dropdown Content */}
-              <div className="absolute left-0 top-full mt-1 w-48 rounded-xl border border-white/10 bg-[#0b0f19]/95 backdrop-blur-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top scale-95 group-hover:scale-100">
-                <div className="py-2 flex flex-col">
-                  <Link
-                    href={`/menu?category=main`}
-                    className="px-4 py-2 text-white/70 hover:bg-white/10 hover:text-amber-300 transition-colors"
-                  >
-                    Main Dish
-                  </Link>
-                  <Link
-                    href={`/menu?category=dessert`}
-                    className="px-4 py-2 text-white/70 hover:bg-white/10 hover:text-amber-300 transition-colors"
-                  >
-                    Desserts
-                  </Link>
-                  <Link
-                    href={`/menu?category=drinks`}
-                    className="px-4 py-2 text-white/70 hover:bg-white/10 hover:text-amber-300 transition-colors"
-                  >
-                    Drinks
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <a className="hover:text-white transition-colors" href="#contact">Contact</a>
-
-            <Link className="hover:text-white transition-colors" href="/reviews">Reviews</Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/view-order`}
-              className="rounded-full bg-amber-400 px-4 py-2 text-sm font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.25)] hover:bg-amber-300 transition-colors flex items-center gap-2"
-            >
-              View Order
-              {Object.values(cart).reduce((a, b) => a + b, 0) > 0 && (
-                <span className="inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-0.5 text-xs font-bold text-black border border-black/10">
-                  {Object.values(cart).reduce((a, b) => a + b, 0)}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar cart={cart} />
 
       {/* Hero - Full Screen */}
       <section

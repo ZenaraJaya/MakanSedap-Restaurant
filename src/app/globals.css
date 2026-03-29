@@ -24,3 +24,66 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-5deg) scale(0.95); }
+  to { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes antigravity {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes antigravity-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-25px); }
+}
+
+@keyframes antigravity-fast {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+.antigravity { animation: antigravity 2s ease-in-out infinite; }
+.antigravity-slow { animation: antigravity-slow 5s ease-in-out infinite; }
+.antigravity-fast { animation: antigravity-fast 3s ease-in-out infinite; }
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+}
+
+.animate-on-scroll.visible { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-slide-left.visible { animation: slideInLeft 0.8s ease-out forwards; }
+.animate-slide-right.visible { animation: slideInRight 0.8s ease-out forwards; }
+.animate-scale.visible { animation: scaleIn 0.8s ease-out forwards; }
+.animate-rotate.visible { animation: rotateIn 0.8s ease-out forwards; }
+
+.float-animation { animation: float 3s ease-in-out infinite; }
+.glow-animation { animation: glow 2s ease-in-out infinite; }
