@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, ChevronDown, ShoppingCart } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronRight, ShoppingCart } from 'lucide-react';
 
 interface NavbarProps {
   cart: { [key: string]: number };
@@ -106,43 +106,65 @@ export default function Navbar({ cart }: NavbarProps) {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay (Backdrop + Drawer) */}
       <div 
-        className={`fixed inset-0 z-40 bg-[#0b0f19] transition-all duration-500 md:hidden ${
+        className={`fixed inset-0 z-40 transition-all duration-500 md:hidden ${
           isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex flex-col h-full pt-20 px-6">
-          <div className="space-y-4 mb-8">
-            {navLinks.map((link, idx) => (
-              <Link
-                key={link.name}
-                href={link.href}
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={() => setIsMenuOpen(false)}
+        />
+        
+        {/* Drawer */}
+        <div 
+          className={`absolute right-0 top-0 h-full w-[280px] bg-white text-black shadow-2xl transition-transform duration-500 ease-out transform ${
+            isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="flex flex-col h-full pt-6">
+            {/* Close Button Inside Drawer */}
+            <div className="flex justify-end px-6 mb-8">
+              <button 
                 onClick={() => setIsMenuOpen(false)}
-                className={`block text-2xl font-bold transition-all duration-300 transform ${
-                  isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
-                }`}
-                style={{ transitionDelay: `${idx * 100}ms` }}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Close Menu"
               >
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className={link.name === 'Menu' ? 'text-amber-400' : 'text-white'}>{link.name}</span>
-                  <ChevronDown size={20} className={link.name === 'Menu' ? 'text-amber-400' : 'text-white/20'} />
-                </div>
-              </Link>
-            ))}
-          </div>
+                <X size={24} className="text-black" />
+              </button>
+            </div>
 
-          <div className={`mt-auto pb-12 transition-all duration-500 transform ${
-            isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`} style={{ transitionDelay: '500ms' }}>
-            <Link
-              href="/view-order"
-              onClick={() => setIsMenuOpen(false)}
-              className="flex w-full items-center justify-center gap-3 rounded-2xl bg-amber-400 py-4 text-base font-black text-black shadow-xl shadow-amber-400/20"
-            >
-              <ShoppingCart size={20} />
-              VIEW ORDER ({cartCount})
-            </Link>
+            <nav className="flex flex-col px-6 space-y-2">
+              {navLinks.map((link, idx) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`group flex items-center justify-between py-4 text-xl font-bold transition-all duration-300 transform border-b border-gray-100 ${
+                    isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+                  }`}
+                  style={{ transitionDelay: `${idx * 50}ms` }}
+                >
+                  <span className="text-black group-hover:translate-x-1 transition-transform">{link.name}</span>
+                  <ChevronRight size={20} className="text-black/30 group-hover:text-black transition-colors" />
+                </Link>
+              ))}
+            </nav>
+
+            <div className={`mt-auto p-6 transition-all duration-500 transform ${
+              isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`} style={{ transitionDelay: '300ms' }}>
+              <Link
+                href="/view-order"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex w-full items-center justify-center gap-3 rounded-full bg-black py-4 text-sm font-black text-white shadow-xl hover:bg-neutral-800 transition-colors"
+              >
+                <ShoppingCart size={18} />
+                VIEW ORDER ({cartCount})
+              </Link>
+            </div>
           </div>
         </div>
       </div>
