@@ -24,6 +24,7 @@ function ReviewsPage() {
   const [text, setText] = useState('');
   const [hoverRating, setHoverRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [tableNumber, setTableNumber] = useState('');
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [linkedOrder, setLinkedOrder] = useState<any>(null);
 
@@ -47,6 +48,7 @@ function ReviewsPage() {
             const data = snap.data();
             setLinkedOrder({ id: snap.id, ...data });
             if (data.customerName) setName(data.customerName);
+            if (data.tableNumber) setTableNumber(data.tableNumber);
             setShowModal(true); // Auto-open modal if linked to an order
           }
         } catch (err) {
@@ -89,6 +91,7 @@ function ReviewsPage() {
         rating,
         text: text.trim(),
         status: 'published',
+        tableNumber: tableNumber.trim() || null,
         createdAt: serverTimestamp(),
       };
 
@@ -104,6 +107,7 @@ function ReviewsPage() {
       setShowModal(false);
       setName('');
       setText('');
+      setTableNumber('');
       setRating(5);
       showToast('Review submitted successfully! Thank you.', 'success');
     } catch (err: any) {
@@ -203,6 +207,11 @@ function ReviewsPage() {
                       }) : 'Just now'}
                     </span>
                   </div>
+                  {review.tableNumber && (
+                    <div className="ml-auto bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-lg">
+                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-tighter">Table #{review.tableNumber}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )})}
@@ -244,14 +253,26 @@ function ReviewsPage() {
               {/* Name Input */}
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Your Name (optional)</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Anonymous"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
-                />
-              </div>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Anonymous"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
+                  />
+                </div>
+
+                {/* Table Number Input - Only show/enable if not pre-linked or empty */}
+                <div>
+                  <label className="block text-sm font-medium text-white/80 mb-2">Table Number (optional)</label>
+                  <input
+                    type="text"
+                    value={tableNumber}
+                    onChange={(e) => setTableNumber(e.target.value)}
+                    placeholder="e.g. 12"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
+                  />
+                </div>
 
               {/* Review Text */}
               <div>

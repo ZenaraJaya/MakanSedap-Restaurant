@@ -926,7 +926,14 @@ export default function AdminDashboard() {
                               </div>
                               <div className="space-y-3">
                                 <div>
-                                  <p className="font-bold text-white leading-none">{review.customerName || 'Anonymous'}</p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-bold text-white leading-none">{review.customerName || 'Anonymous'}</p>
+                                    {review.tableNumber && (
+                                      <span className="inline-flex items-center rounded-md bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 text-[10px] font-black text-amber-400 uppercase">
+                                        Table #{review.tableNumber}
+                                      </span>
+                                    )}
+                                  </div>
                                   <p className="text-[10px] text-white/30 mt-1.5 uppercase font-bold tracking-wider">
                                      Posted: {review.createdAt?.toDate ? new Date(review.createdAt.toDate()).toLocaleString() : 'Just now'}
                                   </p>
