@@ -14,10 +14,10 @@ function ReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [cart, setCart] = useState<{ [key: string]: number }>({});
-  
+
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
-  
+
   // Modal State
   const [name, setName] = useState('');
   const [rating, setRating] = useState(5);
@@ -25,7 +25,7 @@ function ReviewsPage() {
   const [hoverRating, setHoverRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [tableNumber, setTableNumber] = useState('');
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [linkedOrder, setLinkedOrder] = useState<any>(null);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ function ReviewsPage() {
       where('status', '!=', 'hidden'),
       orderBy('createdAt', 'desc') // Requires a composite index if combining where & orderBy, wait actually if status != hidden it might need an index. To be safe, let's just fetch all and filter client side OR use a simpler query.
     );
-    
+
     // Simpler query to avoid immediate complex index requirement during demo:
     const simpleQ = query(collection(db, 'reviews'), orderBy('createdAt', 'desc'));
 
@@ -83,7 +83,7 @@ function ReviewsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
-    
+
     setSubmitting(true);
     try {
       const reviewData: any = {
@@ -126,17 +126,16 @@ function ReviewsPage() {
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden">
       {/* Navbar is now global in layout.tsx */}
-      
+
       {/* Header Section */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg border ${
-          toast.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
-        } animate-in slide-in-from-top-4 fade-in duration-300 font-medium`}>
+        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg border ${toast.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border-red-500/20 text-red-400'
+          } animate-in slide-in-from-top-4 fade-in duration-300 font-medium`}>
           {toast.message}
         </div>
       )}
 
-      
+
 
 
       {/* Hero Header */}
@@ -149,13 +148,6 @@ function ReviewsPage() {
           <p className="text-lg text-white/60 max-w-2xl mx-auto mb-8">
             Read what our amazing customers have to say about their dining experience with MakanSedap.
           </p>
-          <button 
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-black px-8 py-4 rounded-xl font-bold text-lg hover:from-amber-300 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95"
-          >
-            <MessageSquarePlus className="w-5 h-5" />
-            Write a Review
-          </button>
         </div>
       </div>
 
@@ -178,43 +170,44 @@ function ReviewsPage() {
             {reviews.map((review, i) => {
               // Apply the same antigravity class to all cards so they float synchronously
               const floatClass = 'antigravity';
-              
+
               return (
-                <div 
-                  key={review.id} 
+                <div
+                  key={review.id}
                   className={`break-inside-avoid bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/[0.07] transition-all hover:scale-[1.02] ${floatClass}`}
                 >
                   <div className="flex items-center gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star 
-                      key={star} 
-                      className={`w-4 h-4 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'fill-white/10 text-white/10'}`} 
-                    />
-                  ))}
-                </div>
-                <p className="text-white/90 text-lg leading-relaxed mb-6 font-medium">"{review.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 flex items-center justify-center border border-amber-500/30">
-                    <User className="w-5 h-5 text-amber-400" />
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'fill-white/10 text-white/10'}`}
+                      />
+                    ))}
                   </div>
-                  <div>
-                    <h4 className="text-white font-bold">{review.customerName || 'Anonymous'}</h4>
-                    <span className="text-xs text-white/40">
-                      {review.createdAt?.toDate ? new Date(review.createdAt.toDate()).toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      }) : 'Just now'}
-                    </span>
-                  </div>
-                  {review.tableNumber && (
-                    <div className="ml-auto bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-lg">
-                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-tighter">Table #{review.tableNumber}</span>
+                  <p className="text-white/90 text-lg leading-relaxed mb-6 font-medium">"{review.text}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 flex items-center justify-center border border-amber-500/30">
+                      <User className="w-5 h-5 text-amber-400" />
                     </div>
-                  )}
+                    <div>
+                      <h4 className="text-white font-bold">{review.customerName || 'Anonymous'}</h4>
+                      <span className="text-xs text-white/40">
+                        {review.createdAt?.toDate ? new Date(review.createdAt.toDate()).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        }) : 'Just now'}
+                      </span>
+                    </div>
+                    {review.tableNumber && (
+                      <div className="ml-auto bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-lg">
+                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-tighter">Table #{review.tableNumber}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )})}
+              )
+            })}
           </div>
         )}
       </main>
@@ -239,12 +232,11 @@ function ReviewsPage() {
                     onClick={() => setRating(star)}
                     className="p-1 transition-transform hover:scale-110 focus:outline-none"
                   >
-                    <Star 
-                      className={`w-10 h-10 transition-colors ${
-                        star <= (hoverRating || rating) 
-                          ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' 
+                    <Star
+                      className={`w-10 h-10 transition-colors ${star <= (hoverRating || rating)
+                          ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]'
                           : 'fill-white/5 text-white/20 hover:text-white/40'
-                      }`} 
+                        }`}
                     />
                   </button>
                 ))}
@@ -253,26 +245,26 @@ function ReviewsPage() {
               {/* Name Input */}
               <div>
                 <label className="block text-sm font-medium text-white/80 mb-2">Your Name (optional)</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Anonymous"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Anonymous"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
+                />
+              </div>
 
-                {/* Table Number Input - Only show/enable if not pre-linked or empty */}
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">Table Number (optional)</label>
-                  <input
-                    type="text"
-                    value={tableNumber}
-                    onChange={(e) => setTableNumber(e.target.value)}
-                    placeholder="e.g. 12"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
-                  />
-                </div>
+              {/* Table Number Input - Only show/enable if not pre-linked or empty */}
+              <div>
+                <label className="block text-sm font-medium text-white/80 mb-2">Table Number (optional)</label>
+                <input
+                  type="text"
+                  value={tableNumber}
+                  onChange={(e) => setTableNumber(e.target.value)}
+                  placeholder="e.g. 12"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-all font-medium"
+                />
+              </div>
 
               {/* Review Text */}
               <div>
