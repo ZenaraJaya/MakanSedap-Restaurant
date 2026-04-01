@@ -156,20 +156,20 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
         
         {/* Drawer */}
         <div 
-          className={`absolute right-0 top-0 h-full w-[85%] max-w-[420px] bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] border-l border-gray-100 transition-transform duration-500 ease-out transform ${
+          className={`absolute right-0 top-0 h-full w-[85%] max-w-[420px] bg-[#1F2937] text-[#F9FAFB] shadow-[0_0_50px_rgba(0,0,0,0.3)] border-l border-[#374151] transition-transform duration-500 ease-out transform ${
             isMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
-          style={{ backgroundColor: '#ffffff', opacity: 1 }}
+          style={{ opacity: 1 }}
         >
           <div className="flex flex-col h-full pt-6">
             {/* Close Button Inside Drawer */}
             <div className="flex justify-end px-6 mb-4">
               <button 
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full hover:bg-white/10 transition-colors"
                 aria-label="Close Menu"
               >
-                <X size={24} className="text-black" />
+                <X size={24} className="text-[#F9FAFB]" />
               </button>
             </div>
 
@@ -179,13 +179,13 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`group flex items-center justify-between py-4 text-xl font-bold transition-all duration-300 transform border-b border-gray-100 ${
+                  className={`group flex items-center justify-between py-4 text-xl font-bold transition-all duration-300 transform border-b border-[#374151] ${
                     isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
                   }`}
                   style={{ transitionDelay: `${idx * 50}ms` }}
                 >
-                  <span className="text-black group-hover:translate-x-1 transition-transform">{link.name}</span>
-                  <ChevronRight size={20} className="text-black/30 group-hover:text-black transition-colors" />
+                  <span className="text-[#F9FAFB] group-hover:translate-x-1 transition-transform">{link.name}</span>
+                  <ChevronRight size={20} className="text-[#F9FAFB]/30 group-hover:text-[#F9FAFB] transition-colors" />
                 </Link>
               ))}
             </nav>
@@ -196,7 +196,7 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
               <Link
                 href="/view-order"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex w-full items-center justify-center gap-3 rounded-full bg-black py-4 text-sm font-black text-white shadow-xl hover:bg-neutral-800 transition-colors"
+                className="flex w-full items-center justify-center gap-3 rounded-full bg-amber-400 py-4 text-sm font-black text-black shadow-xl hover:bg-amber-300 transition-colors"
               >
                 <ShoppingCart size={18} />
                 VIEW ORDER ({cartCount})
