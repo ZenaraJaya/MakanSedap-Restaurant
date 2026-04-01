@@ -139,7 +139,7 @@ function LandingPage() {
               rest.
             </p>
 
-            <div className="mt-10 flex flex-wrap items-center gap-4">
+            <div className="mt-5 hidden lg:flex flex-wrap items-center gap-4">
               <Link
                 href={`/menu`}
                 className="btn-hover rounded-full bg-amber-400 px-8 py-3 text-base font-extrabold text-black hover:bg-amber-300"
@@ -176,6 +176,25 @@ function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Mobile Buttons */}
+          <div 
+            className={`flex lg:hidden flex-wrap items-center gap-4 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
+            style={{ animationDelay: visibleSections.hero ? '0.4s' : '0s' }}
+          >
+            <Link
+              href={`/menu`}
+              className="btn-hover rounded-full bg-amber-400 px-8 py-3 text-base font-extrabold text-black hover:bg-amber-300"
+            >
+              Browse Menu
+            </Link>
+            <a
+              href="#about"
+              className="btn-hover rounded-full border border-white/15 bg-white/5 px-8 py-3 text-base font-semibold text-white hover:bg-white/10"
+            >
+              Read More
+            </a>
           </div>
         </div>
       </section>
