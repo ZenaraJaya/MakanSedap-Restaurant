@@ -179,7 +179,7 @@ function MenuPage() {
           <h1 className="text-4xl font-extrabold text-white">Menu</h1>
           <Link
             href="/view-order"
-            className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5 text-[11px] font-black text-black shadow-[0_8px_20px_rgba(245,158,11,0.3)] transition-all hover:bg-amber-300 hover:scale-105 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5 text-[11px] font-black text-black shadow-[0_8px_20px_rgba(245,158,11,0.3)] transition-all hover:bg-amber-300 hover:scale-105 active:scale-95 md:hidden"
           >
             VIEW ORDER
             {cartCount > 0 && (
