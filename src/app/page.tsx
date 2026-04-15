@@ -208,7 +208,16 @@ function LandingPage() {
         data-section="hero"
       >
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-50" />
+          <video
+            className="absolute inset-0 h-full w-full object-cover opacity-50"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+          >
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-r from-[#0b0f19] via-[#0b0f19]/80 to-transparent" />
 
           <div className="absolute -left-24 -top-24 h-80 w-80 rounded-full bg-amber-500/20 blur-3xl" />
