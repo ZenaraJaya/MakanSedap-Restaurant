@@ -189,6 +189,14 @@ function LandingPage() {
           opacity: 1;
         }
 
+        @media (max-width: 640px) {
+          .hero-cta {
+            padding: 0.72rem 1.3rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+          }
+        }
+
         .ticker-track {
           width: max-content;
           animation: ticker-scroll 28s linear infinite;
@@ -337,7 +345,7 @@ function LandingPage() {
 
           {/* Mobile Buttons */}
           <div 
-            className={`flex lg:hidden flex-wrap items-center gap-4 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
+            className={`flex lg:hidden flex-nowrap items-center gap-2.5 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
             style={{ animationDelay: visibleSections.hero ? '0.4s' : '0s' }}
           >
             <Link
