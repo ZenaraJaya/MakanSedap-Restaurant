@@ -215,7 +215,7 @@ function LandingPage() {
           <div className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-orange-600/20 blur-3xl" />
         </div>
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 w-full lg:grid-cols-2 lg:items-center">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 w-full lg:grid-cols-1 lg:items-center">
           <div
             className={`animate-slide-left ${visibleSections.hero ? 'visible' : ''}`}
             style={{ animationDelay: visibleSections.hero ? '0.1s' : '0s' }}
@@ -246,49 +246,6 @@ function LandingPage() {
               >
                 Read More
               </a>
-            </div>
-          </div>
-
-          <div
-            className={`animate-slide-right antigravity ${visibleSections.hero ? 'visible' : ''}`}
-            style={{ animationDelay: visibleSections.hero ? '0.3s' : '0s' }}
-          >
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-neutral-900/70 backdrop-blur-xl">
-              <div className="grid grid-cols-5">
-                <div className="col-span-2 p-6">
-                  <p className="text-xs font-semibold text-white/70">Today's pick</p>
-                  <p className="mt-3 text-lg font-bold">Signature Sets</p>
-                  <p className="mt-2 text-sm text-white/70">
-                    Popular combos, ready in minutes.
-                  </p>
-                  <div className="mt-6 inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm border border-white/10">
-                    Fresh • Hot • Fast
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden">
-                    <video
-                      className="h-full w-full object-cover"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      poster="https://images.unsplash.com/photo-1633271333045-d6cd23567743?q=80&w=687&auto=format&fit=crop"
-                    >
-                      <source
-                        src="https://cdn.coverr.co/videos/coverr-cooking-pasta-1579/1080p.mp4"
-                        type="video/mp4"
-                      />
-                      <source
-                        src="https://videos.pexels.com/video-files/3769033/3769033-sd_640_360_25fps.mp4"
-                        type="video/mp4"
-                      />
-                    </video>
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-orange-500/20" />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
