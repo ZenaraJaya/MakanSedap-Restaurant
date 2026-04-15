@@ -172,7 +172,23 @@ function LandingPage() {
                   </div>
                 </div>
                 <div className="col-span-3">
-                  <div className="aspect-[4/3] w-full bg-[linear-gradient(120deg,rgba(245,158,11,0.25),rgba(249,115,22,0.15)),url('https://images.unsplash.com/photo-1633271333045-d6cd23567743?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center" />
+                  <div className="relative aspect-[4/3] w-full overflow-hidden">
+                    <video
+                      className="h-full w-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      poster="https://images.unsplash.com/photo-1633271333045-d6cd23567743?q=80&w=687&auto=format&fit=crop"
+                    >
+                      <source
+                        src="https://player.vimeo.com/external/517848553.sd.mp4?s=6f7e2cb3c35e1963027647d572654cea89ac2b98&profile_id=164&oauth2_token_id=57447761"
+                        type="video/mp4"
+                      />
+                    </video>
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-orange-500/20" />
+                  </div>
                 </div>
               </div>
             </div>
