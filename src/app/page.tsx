@@ -211,9 +211,6 @@ function LandingPage() {
             className={`animate-slide-left ${visibleSections.hero ? 'visible' : ''}`}
             style={{ animationDelay: visibleSections.hero ? '0.1s' : '0s' }}
           >
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
-              Enjoy hundreds of flavors under one roof
-            </p>
             <h1 className="hero-premium-title mt-6 text-[3.2rem] sm:text-[4.4rem] lg:text-[5.8rem]">
               Enjoy hundreds of
               <br />
