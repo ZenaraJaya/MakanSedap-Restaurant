@@ -121,6 +121,62 @@ function LandingPage() {
           animation-play-state: paused;
         }
 
+        .feature-slice {
+          position: relative;
+          isolation: isolate;
+          transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .feature-slice::before {
+          content: '';
+          position: absolute;
+          inset: 10px 10px;
+          border-radius: 18px;
+          background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.015));
+          opacity: 0;
+          transform: scale(0.98);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          z-index: -1;
+        }
+
+        .feature-slice:hover {
+          transform: translateY(-7px);
+        }
+
+        .feature-slice:hover::before {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        .feature-slice-icon {
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .feature-slice:hover .feature-slice-icon {
+          color: #fde5ba;
+          border-color: rgba(253, 229, 186, 0.75);
+          box-shadow: 0 10px 28px rgba(217, 160, 76, 0.22);
+          transform: translateY(-2px) scale(1.07);
+        }
+
+        .feature-slice-title {
+          font-family: 'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif;
+          transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .feature-slice:hover .feature-slice-title {
+          color: #fff5e4;
+          transform: translateX(2px);
+        }
+
+        .feature-slice-copy {
+          transition: color 0.3s ease;
+        }
+
+        .feature-slice:hover .feature-slice-copy {
+          color: #eadfd0;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .ticker-track { animation: none; }
         }
@@ -272,45 +328,45 @@ function LandingPage() {
           <div className="grid grid-cols-1 gap-0 md:grid-cols-2 lg:grid-cols-4">
 
             {/* Card 1: Master Chefs */}
-            <div className="px-8 py-10">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+            <div className="feature-slice group cursor-pointer px-8 py-10">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
                 <ChefHat strokeWidth={2.1} size={20} />
               </div>
-              <h3 className="mt-6 text-[1.8rem] font-medium tracking-tight text-[#f3e8d7]">Master Chefs</h3>
-              <p className="mt-3 max-w-[16rem] text-[1.04rem] leading-8 text-[#d8ccbb]">
+              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-[#f3e8d7]">Master Chefs</h3>
+              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-[#d8ccbb]">
                 Crafted by experienced chefs, consistent quality.
               </p>
             </div>
 
             {/* Card 2: Quality Food */}
-            <div className="border-t border-white/12 px-8 py-10 md:border-l md:border-t-0 lg:border-white/15">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+            <div className="feature-slice group cursor-pointer border-t border-white/12 px-8 py-10 md:border-l md:border-t-0 lg:border-white/15">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
                 <Utensils strokeWidth={2.1} size={20} />
               </div>
-              <h3 className="mt-6 text-[1.8rem] font-medium tracking-tight text-[#f3e8d7]">Quality Food</h3>
-              <p className="mt-3 max-w-[16rem] text-[1.04rem] leading-8 text-[#d8ccbb]">
+              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-[#f3e8d7]">Quality Food</h3>
+              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-[#d8ccbb]">
                 Fresh ingredients with great taste in every bite.
               </p>
             </div>
 
             {/* Card 3: Online Order */}
-            <div className="border-t border-white/12 px-8 py-10 lg:border-l lg:border-t-0 lg:border-white/15">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+            <div className="feature-slice group cursor-pointer border-t border-white/12 px-8 py-10 lg:border-l lg:border-t-0 lg:border-white/15">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
                 <ShoppingCart strokeWidth={2.1} size={20} />
               </div>
-              <h3 className="mt-6 text-[1.8rem] font-medium tracking-tight text-[#f3e8d7]">Online Order</h3>
-              <p className="mt-3 max-w-[16rem] text-[1.04rem] leading-8 text-[#d8ccbb]">
+              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-[#f3e8d7]">Online Order</h3>
+              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-[#d8ccbb]">
                 Order from the table and track your order easily.
               </p>
             </div>
 
             {/* Card 4: 24/7 Service */}
-            <div className="border-t border-white/12 px-8 py-10 md:border-l lg:border-t-0 lg:border-white/15">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+            <div className="feature-slice group cursor-pointer border-t border-white/12 px-8 py-10 md:border-l lg:border-t-0 lg:border-white/15">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
                 <Headset strokeWidth={2.1} size={20} />
               </div>
-              <h3 className="mt-6 text-[1.8rem] font-medium tracking-tight text-[#f3e8d7]">24/7 Service</h3>
-              <p className="mt-3 max-w-[16rem] text-[1.04rem] leading-8 text-[#d8ccbb]">
+              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-[#f3e8d7]">24/7 Service</h3>
+              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-[#d8ccbb]">
                 Support for your dining flow whenever needed.
               </p>
             </div>
