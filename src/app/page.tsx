@@ -261,12 +261,12 @@ function LandingPage() {
       </section>
 
       {/* Feature strip - Full Width */}
-      <section className="relative overflow-hidden bg-[linear-gradient(180deg,rgba(7,14,33,0.95)_0%,rgba(10,18,40,0.98)_48%,rgba(6,12,28,0.96)_100%)] py-16">
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,rgba(18,32,64,0.95)_0%,rgba(24,42,82,0.98)_48%,rgba(15,30,62,0.96)_100%)] py-16">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-x-0 top-0 h-px bg-amber-300/20" />
-          <div className="absolute inset-x-0 bottom-0 h-px bg-amber-300/15" />
-          <div className="absolute -left-20 top-12 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
-          <div className="absolute -right-24 bottom-2 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="absolute inset-x-0 top-0 h-px bg-amber-300/35" />
+          <div className="absolute inset-x-0 bottom-0 h-px bg-amber-300/28" />
+          <div className="absolute -left-20 top-12 h-56 w-56 rounded-full bg-amber-400/16 blur-3xl" />
+          <div className="absolute -right-24 bottom-2 h-64 w-64 rounded-full bg-sky-400/14 blur-3xl" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
