@@ -185,6 +185,15 @@ function LandingPage() {
           text-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
         }
 
+        .hero-premium-copy {
+          font-family: 'Libre Baskerville', 'Palatino Linotype', 'Book Antiqua', serif;
+          font-size: clamp(1.2rem, 1.1vw, 1.42rem);
+          line-height: 1.82;
+          letter-spacing: 0.004em;
+          color: rgba(245, 238, 226, 0.88);
+          text-shadow: 0 6px 22px rgba(0, 0, 0, 0.26);
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .ticker-track { animation: none; }
         }
@@ -218,7 +227,7 @@ function LandingPage() {
               <br />
               one roof
             </h1>
-            <p className="mt-7 max-w-xl text-lg leading-9 text-white/78 lg:text-[1.28rem]">
+            <p className="hero-premium-copy mt-8 max-w-2xl">
               Discover chef-crafted dishes, quick ordering, and a smooth dining
               experience. Browse the menu, place your order, and we'll handle the
               rest.
