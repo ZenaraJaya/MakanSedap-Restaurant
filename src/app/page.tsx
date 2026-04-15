@@ -15,6 +15,14 @@ function LandingPage() {
     about: false,
     footer: false,
   });
+  const tickerItems = [
+    'Western & Tradition fusion',
+    'Fresh Ingredient Daily',
+    'Dine-In & Takeaway',
+    'Halal Certified',
+    'Open 7 Days a Week',
+    "Miri's Favourite Restaurant",
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,6 +80,10 @@ function LandingPage() {
           0% { background-position: -1000px 0; }
           100% { background-position: 1000px 0; }
         }
+        @keyframes ticker-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
 
         .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .feature-card:hover {
@@ -100,6 +112,19 @@ function LandingPage() {
         }
 
         .btn-hover:hover::before { left: 100%; }
+
+        .ticker-track {
+          width: max-content;
+          animation: ticker-scroll 28s linear infinite;
+        }
+
+        .ticker-wrap:hover .ticker-track {
+          animation-play-state: paused;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .ticker-track { animation: none; }
+        }
       `}</style>
 
 
@@ -215,6 +240,23 @@ function LandingPage() {
             >
               Read More
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Scrolling Ticker */}
+      <section className="border-y-4 border-red-500 bg-[#070d1b] py-3">
+        <div className="ticker-wrap overflow-hidden whitespace-nowrap">
+          <div className="ticker-track flex items-center gap-6 px-6">
+            {[...tickerItems, ...tickerItems].map((item, index) => (
+              <span
+                key={`${item}-${index}`}
+                className="inline-flex items-center gap-6 text-sm font-semibold tracking-wide text-amber-200/95"
+              >
+                <span>{item}</span>
+                <span className="text-red-400/90">•</span>
+              </span>
+            ))}
           </div>
         </div>
       </section>
