@@ -177,6 +177,14 @@ function LandingPage() {
           color: #eadfd0;
         }
 
+        .hero-premium-title {
+          font-family: 'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif;
+          font-weight: 700;
+          letter-spacing: -0.015em;
+          line-height: 0.98;
+          text-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .ticker-track { animation: none; }
         }
@@ -206,14 +214,14 @@ function LandingPage() {
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
               Enjoy hundreds of flavors under one roof
             </p>
-            <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="hero-premium-title mt-6 text-[3.2rem] sm:text-[4.4rem] lg:text-[5.8rem]">
               Enjoy hundreds of
               <br />
               <span className="text-amber-300">flavors under</span>
               <br />
               one roof
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-8 text-white/70">
+            <p className="mt-7 max-w-xl text-lg leading-9 text-white/78 lg:text-[1.28rem]">
               Discover chef-crafted dishes, quick ordering, and a smooth dining
               experience. Browse the menu, place your order, and we'll handle the
               rest.
