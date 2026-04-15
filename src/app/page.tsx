@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef, Suspense } from 'react';
-import { ChefHat, Utensils, ShoppingCart, Headset, Sparkles } from 'lucide-react';
+import { ChefHat, Utensils, ShoppingCart, Headset, Crown } from 'lucide-react';
 import { MapPin, Phone, Mail } from 'lucide-react';
 
 function LandingPage() {
@@ -244,16 +244,16 @@ function LandingPage() {
       </section>
 
       {/* Scrolling Ticker */}
-      <section className="bg-[linear-gradient(90deg,rgba(6,12,28,0.96)_0%,rgba(11,22,46,0.94)_50%,rgba(6,12,28,0.96)_100%)] py-4 shadow-[inset_0_1px_0_rgba(245,158,11,0.20),inset_0_-1px_0_rgba(245,158,11,0.22)]">
+      <section className="bg-[linear-gradient(90deg,rgba(8,13,26,0.97)_0%,rgba(16,24,42,0.96)_48%,rgba(7,12,24,0.97)_100%)] py-4 shadow-[inset_0_1px_0_rgba(214,170,96,0.34),inset_0_-1px_0_rgba(214,170,96,0.34)]">
         <div className="ticker-wrap overflow-hidden whitespace-nowrap">
           <div className="ticker-track flex items-center gap-10 px-8">
             {[...tickerItems, ...tickerItems].map((item, index) => (
               <span
                 key={`${item}-${index}`}
-                className="inline-flex items-center gap-10 text-[0.72rem] font-semibold uppercase tracking-[0.20em] text-[#e3c78f]"
+                className="inline-flex items-center gap-10 text-[0.72rem] font-semibold uppercase tracking-[0.20em] text-[#d8be8a]"
               >
                 <span>{item}</span>
-                <Sparkles size={12} strokeWidth={2.25} className="shrink-0 text-[#f3bf5c]" aria-hidden="true" />
+                <Crown size={12} strokeWidth={2.1} className="shrink-0 text-[#eac27a]" aria-hidden="true" />
               </span>
             ))}
           </div>
