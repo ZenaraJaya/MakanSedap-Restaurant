@@ -183,7 +183,11 @@ function LandingPage() {
                       poster="https://images.unsplash.com/photo-1633271333045-d6cd23567743?q=80&w=687&auto=format&fit=crop"
                     >
                       <source
-                        src="https://player.vimeo.com/external/517848553.sd.mp4?s=6f7e2cb3c35e1963027647d572654cea89ac2b98&profile_id=164&oauth2_token_id=57447761"
+                        src="https://cdn.coverr.co/videos/coverr-cooking-pasta-1579/1080p.mp4"
+                        type="video/mp4"
+                      />
+                      <source
+                        src="https://videos.pexels.com/video-files/3769033/3769033-sd_640_360_25fps.mp4"
                         type="video/mp4"
                       />
                     </video>
