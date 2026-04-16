@@ -366,7 +366,7 @@ function LandingPage() {
                 { label: 'MASTER CHEFS', value: '15' },
                 { label: 'GOOGLE RATING', value: '4.8', icon: true },
               ].map((stat, i) => (
-                <div key={i} className="border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+                <div key={i} className="border border-white/10 bg-white/10 p-3 backdrop-blur-sm shadow-lg">
                   <div className="flex flex-col items-center text-center">
                     <div className="flex items-center gap-1">
                       <span className="font-serif text-xl font-bold text-[#d4af37]">
@@ -374,7 +374,7 @@ function LandingPage() {
                       </span>
                       {stat.icon && <Star size={12} fill="#d4af37" className="text-[#d4af37]" />}
                     </div>
-                    <span className="font-sans mt-1 text-[0.48rem] font-bold tracking-[0.05em] text-white/40 uppercase leading-none">
+                    <span className="font-sans mt-1 text-[0.48rem] font-bold tracking-[0.05em] text-white/50 uppercase leading-none">
                       {stat.label}
                     </span>
                   </div>
@@ -394,16 +394,18 @@ function LandingPage() {
                 { label: 'MASTER CHEFS', value: '15' },
                 { label: 'GOOGLE RATING', value: '4.8', icon: true },
               ].map((stat, i) => (
-                <div key={i} className="aspect-square relative group overflow-hidden border border-white/10 bg-black/40 p-3.5 backdrop-blur-xl transition-all hover:bg-black/60 hover:border-[#d4af37]/30 flex flex-col items-center justify-center text-center">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-serif text-3xl font-bold text-[#d4af37]">
-                      {stat.value}
+                <div key={i} className="aspect-square relative group overflow-hidden border border-white/10 bg-white/10 p-3.5 backdrop-blur-xl transition-all hover:bg-white/20 hover:border-[#d4af37]/40 flex flex-col items-center justify-center text-center shadow-2xl">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-serif text-3xl font-bold text-[#d4af37]">
+                        {stat.value}
+                      </span>
+                      {stat.icon && <Star size={18} fill="#d4af37" className="text-[#d4af37] -mt-1" />}
+                    </div>
+                    <span className="font-sans mt-2.5 text-[0.52rem] font-bold tracking-[0.12em] text-white/70 leading-tight px-0.5 uppercase">
+                      {stat.label}
                     </span>
-                    {stat.icon && <Star size={18} fill="#d4af37" className="text-[#d4af37] -mt-1" />}
                   </div>
-                  <span className="font-sans mt-2.5 text-[0.52rem] font-bold tracking-[0.12em] text-white/50 leading-tight px-0.5 uppercase">
-                    {stat.label}
-                  </span>
                 </div>
               ))}
             </div>
