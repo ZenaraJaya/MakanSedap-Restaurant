@@ -118,11 +118,11 @@ function LandingPage() {
           align-items: center;
           justify-content: center;
           border-radius: 9999px;
-          padding: 0.88rem 2.35rem;
-          font-family: 'Cinzel', 'Cormorant Garamond', 'Baskerville', serif;
-          font-size: 1.08rem;
-          font-weight: 700;
-          letter-spacing: 0.045em;
+          padding: 0.75rem 2.2rem;
+          font-family: 'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif;
+          font-size: 1.15rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
           line-height: 1;
           transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, border-color 0.28s ease, color 0.28s ease, background 0.28s ease;
           will-change: transform;
@@ -148,23 +148,17 @@ function LandingPage() {
         }
 
         .hero-cta-primary {
-          color: #1b1405;
-          border: 1px solid rgba(255, 232, 166, 0.85);
-          background: linear-gradient(135deg, #ffd44d 0%, #f8be00 52%, #e9a700 100%);
-          box-shadow: 0 10px 28px rgba(224, 158, 20, 0.34), inset 0 1px 0 rgba(255, 251, 226, 0.58);
+          color: #d4af37;
+          border: 1px solid rgba(212, 175, 55, 0.8);
+          background: transparent;
+          shadow: 0 8px 20px rgba(212, 175, 55, 0.18);
         }
 
         .hero-cta-primary:hover {
-          color: #120e04;
-          box-shadow: 0 14px 34px rgba(242, 174, 31, 0.46), inset 0 1px 0 rgba(255, 251, 226, 0.7);
-        }
-
-        .hero-cta-primary::after {
-          background: linear-gradient(120deg, transparent 18%, rgba(255, 246, 218, 0.5) 50%, transparent 82%);
-        }
-
-        .hero-cta-primary:hover::after {
-          opacity: 1;
+          background: rgba(212, 175, 55, 0.1);
+          color: #d4af37;
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 12px 25px rgba(212, 175, 55, 0.25);
         }
 
         .hero-cta-secondary {
