@@ -303,25 +303,26 @@ function LandingPage() {
           <div className="absolute -right-24 top-24 h-80 w-80 rounded-full bg-orange-600/20 blur-3xl" />
         </div>
 
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 w-full lg:grid-cols-1 lg:items-center">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 w-full lg:grid-cols-2 lg:items-center">
+          {/* Left Column: Content */}
           <div
-            className={`animate-slide-left lg:-translate-y-6 ${visibleSections.hero ? 'visible' : ''}`}
+            className={`animate-slide-left ${visibleSections.hero ? 'visible' : ''}`}
             style={{ animationDelay: visibleSections.hero ? '0.1s' : '0s' }}
           >
-            <h1 className="hero-premium-title mt-6 text-[3.2rem] sm:text-[4.4rem] lg:text-[5.8rem]">
+            <h1 className="hero-premium-title mt-6 text-[2.8rem] sm:text-[4rem] lg:text-[5.2rem]">
               Enjoy hundreds of
               <br />
               <span className="text-[#d4af37]">flavors under</span>
               <br />
               one roof
             </h1>
-            <p className="hero-premium-copy mt-8 max-w-2xl">
+            <p className="hero-premium-copy mt-8 max-w-xl">
               Discover chef-crafted dishes, quick ordering, and a smooth dining
               experience. Browse the menu, place your order, and we'll handle the
               rest.
             </p>
 
-            <div className="mt-5 hidden lg:flex flex-wrap items-center gap-4">
+            <div className="mt-8 hidden lg:flex flex-wrap items-center gap-4">
               <Link
                 href={`/menu`}
                 className="hero-cta hero-cta-primary"
@@ -336,25 +337,44 @@ function LandingPage() {
               </a>
             </div>
 
-            {/* Desktop Hero Stats */}
+            {/* Mobile Buttons */}
             <div 
-              className={`mt-12 hidden lg:grid grid-cols-3 gap-6 max-w-2xl animate-fade-in ${visibleSections.hero ? 'visible' : ''}`}
-              style={{ animationDelay: '0.6s' }}
+              className={`flex lg:hidden flex-nowrap items-center gap-2.5 mt-8 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
+              style={{ animationDelay: visibleSections.hero ? '0.4s' : '0s' }}
+            >
+              <Link
+                href={`/menu`}
+                className="hero-cta hero-cta-primary"
+              >
+                Browse Menu
+              </Link>
+              <a
+                href="#about"
+                className="hero-cta hero-cta-secondary"
+              >
+                Read More
+              </a>
+            </div>
+
+            {/* Mobile Hero Stats - Now only on mobile column */}
+            <div 
+              className={`grid lg:hidden grid-cols-3 gap-3 mt-8 animate-fade-in ${visibleSections.hero ? 'visible' : ''}`}
+              style={{ animationDelay: '0.7s' }}
             >
               {[
-                { label: 'YEARS OF FLAVOUR', value: '10' },
+                { label: 'YEARS FLAVOUR', value: '10' },
                 { label: 'MASTER CHEFS', value: '15' },
                 { label: 'GOOGLE RATING', value: '4.8', icon: true },
               ].map((stat, i) => (
-                <div key={i} className="relative group overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition-all hover:bg-white/10 hover:border-[#d4af37]/30">
+                <div key={i} className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
                   <div className="flex flex-col items-center text-center">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-3xl font-bold text-[#d4af37]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xl font-bold text-[#d4af37]">
                         {stat.value}
                       </span>
-                      {stat.icon && <Star size={18} fill="#d4af37" className="text-[#d4af37]" />}
+                      {stat.icon && <Star size={12} fill="#d4af37" className="text-[#d4af37]" />}
                     </div>
-                    <span className="mt-2 text-[0.65rem] font-black tracking-[0.15em] text-white/60">
+                    <span className="mt-1 text-[0.55rem] font-black tracking-wider text-white/50">
                       {stat.label}
                     </span>
                   </div>
@@ -363,44 +383,25 @@ function LandingPage() {
             </div>
           </div>
 
-          {/* Mobile Buttons */}
+          {/* Right Column: Desktop Stats */}
           <div 
-            className={`flex lg:hidden flex-nowrap items-center gap-2.5 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
-            style={{ animationDelay: visibleSections.hero ? '0.4s' : '0s' }}
-          >
-            <Link
-              href={`/menu`}
-              className="hero-cta hero-cta-primary"
-            >
-              Browse Menu
-            </Link>
-            <a
-              href="#about"
-              className="hero-cta hero-cta-secondary"
-            >
-              Read More
-            </a>
-          </div>
-
-          {/* Mobile Hero Stats */}
-          <div 
-            className={`grid lg:hidden grid-cols-3 gap-3 mt-8 animate-fade-in ${visibleSections.hero ? 'visible' : ''}`}
-            style={{ animationDelay: '0.7s' }}
+            className={`hidden lg:grid grid-cols-3 gap-5 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
+            style={{ animationDelay: '0.4s' }}
           >
             {[
-              { label: 'YEARS FLAVOUR', value: '10' },
+              { label: 'YEARS OF FLAVOUR', value: '10' },
               { label: 'MASTER CHEFS', value: '15' },
               { label: 'GOOGLE RATING', value: '4.8', icon: true },
             ].map((stat, i) => (
-              <div key={i} className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+              <div key={i} className="aspect-square relative group overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md transition-all hover:bg-white/10 hover:border-[#d4af37]/30 flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center text-center">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xl font-bold text-[#d4af37]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-4xl font-bold text-[#d4af37]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       {stat.value}
                     </span>
-                    {stat.icon && <Star size={12} fill="#d4af37" className="text-[#d4af37]" />}
+                    {stat.icon && <Star size={20} fill="#d4af37" className="text-[#d4af37]" />}
                   </div>
-                  <span className="mt-1 text-[0.55rem] font-black tracking-wider text-white/50">
+                  <span className="mt-3 text-[0.6rem] font-black tracking-[0.18em] text-white/60 leading-tight px-2">
                     {stat.label}
                   </span>
                 </div>
