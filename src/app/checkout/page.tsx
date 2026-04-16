@@ -224,8 +224,13 @@ function CheckoutPage() {
             </div>
 
             <div className="mt-6">
-              <button disabled={processing} onClick={pay} className="w-full rounded-full bg-amber-400 px-4 py-3.5 text-base font-extrabold text-black shadow-[0_10px_30px_rgba(245,158,11,0.2)] hover:bg-amber-300">
-                {processing ? 'Processing…' : `Pay RM ${total.toFixed(2)}`}
+              <button
+                disabled={processing}
+                onClick={pay}
+                className="w-full rounded-full border border-[#d4af37]/80 bg-transparent px-4 py-3.5 text-base font-extrabold text-[#d4af37] shadow-[0_10px_30px_rgba(212,175,55,0.15)] hover:bg-[#d4af37]/10 transition-all tracking-[0.2em]"
+                style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
+              >
+                {processing ? 'PROCESSING…' : `PAY RM ${total.toFixed(2)}`}
               </button>
             </div>
           </section>
