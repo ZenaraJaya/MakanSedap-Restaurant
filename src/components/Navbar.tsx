@@ -97,7 +97,10 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-8 text-[clamp(1rem,1.25vw,1.4rem)] font-semibold leading-none text-white/75 md:flex">
+          <nav
+            className="hidden items-center gap-8 text-[clamp(1rem,1.25vw,1.4rem)] font-semibold leading-none text-white/75 md:flex"
+            style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
+          >
             {navLinks.map((link) => (
               <div key={link.name} className="relative group py-2">
                 {link.hasDropdown ? (
@@ -127,7 +130,8 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
           <div className="flex items-center gap-4">
             <Link
               href="/view-order"
-              className="hidden sm:flex rounded-full bg-amber-400 px-6 py-3 text-[clamp(0.95rem,1.1vw,1.25rem)] font-black leading-none text-black shadow-[0_8px_20px_rgba(245,158,11,0.3)] hover:bg-amber-300 hover:scale-105 active:scale-95 transition-all items-center gap-2"
+              className="hidden sm:flex rounded-full bg-amber-400 px-6 py-3 text-[clamp(0.95rem,1.1vw,1.25rem)] font-semibold leading-none text-black shadow-[0_8px_20px_rgba(245,158,11,0.3)] hover:bg-amber-300 hover:scale-105 active:scale-95 transition-all items-center gap-2"
+              style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
             >
               VIEW ORDER
               {cartCount > 0 && (
