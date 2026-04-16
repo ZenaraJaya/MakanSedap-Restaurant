@@ -359,16 +359,16 @@ function LandingPage() {
       </section>
 
       {/* Scrolling Ticker */}
-      <section className="bg-[#18181F] py-4 shadow-[inset_0_1px_0_rgba(214,170,96,0.34),inset_0_-1px_0_rgba(214,170,96,0.34)]">
+      <section className="bg-[#18181F] py-4 shadow-[inset_0_1px_0_rgba(212,175,55,0.34),inset_0_-1px_0_rgba(212,175,55,0.34)]">
         <div className="ticker-wrap overflow-hidden whitespace-nowrap">
           <div className="ticker-track flex items-center gap-10 px-8">
             {[...tickerItems, ...tickerItems].map((item, index) => (
               <span
                 key={`${item}-${index}`}
-                className="inline-flex items-center gap-10 text-[0.72rem] font-semibold uppercase tracking-[0.20em] text-[#d8be8a]"
+                className="inline-flex items-center gap-10 text-[0.72rem] font-semibold uppercase tracking-[0.20em] text-[#d4af37]"
               >
                 <span>{item}</span>
-                <Crown size={12} strokeWidth={2.1} className="shrink-0 text-[#eac27a]" aria-hidden="true" />
+                <Crown size={12} strokeWidth={2.1} className="shrink-0 text-[#d4af37]" aria-hidden="true" />
               </span>
             ))}
           </div>
@@ -388,7 +388,7 @@ function LandingPage() {
 
             {/* Card 1: Master Chefs */}
             <div className="feature-slice group cursor-pointer px-8 py-10">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
                 <ChefHat strokeWidth={2.1} size={20} />
               </div>
               <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">Master Chefs</h3>
@@ -399,7 +399,7 @@ function LandingPage() {
 
             {/* Card 2: Quality Food */}
             <div className="feature-slice group cursor-pointer border-t border-[#d4af37]/20 px-8 py-10 md:border-l md:border-t-0 lg:border-[#d4af37]/25">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
                 <Utensils strokeWidth={2.1} size={20} />
               </div>
               <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">Quality Food</h3>
@@ -410,7 +410,7 @@ function LandingPage() {
 
             {/* Card 3: Online Order */}
             <div className="feature-slice group cursor-pointer border-t border-[#d4af37]/20 px-8 py-10 lg:border-l lg:border-t-0 lg:border-[#d4af37]/25">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
                 <ShoppingCart strokeWidth={2.1} size={20} />
               </div>
               <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">Online Order</h3>
@@ -421,7 +421,7 @@ function LandingPage() {
 
             {/* Card 4: 24/7 Service */}
             <div className="feature-slice group cursor-pointer border-t border-[#d4af37]/20 px-8 py-10 md:border-l lg:border-t-0 lg:border-[#d4af37]/25">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-amber-200/40 text-amber-200/85">
+              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
                 <Headset strokeWidth={2.1} size={20} />
               </div>
               <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">24/7 Service</h3>
