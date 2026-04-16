@@ -208,9 +208,10 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
                 <Link
                   href="/view-order"
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex w-full items-center justify-center gap-3 rounded-full bg-amber-400 py-4 text-sm font-black text-black shadow-xl hover:bg-amber-300 transition-colors"
+                  className="flex w-full items-center justify-center gap-3 rounded-full border border-[#d4af37]/80 bg-transparent py-4 text-sm font-black text-[#d4af37] shadow-xl hover:bg-[#d4af37]/10 transition-all tracking-[0.15em]"
+                  style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
                 >
-                  <ShoppingCart size={18} />
+                  <ShoppingCart size={18} className="text-[#d4af37]" />
                   VIEW ORDER ({cartCount})
                 </Link>
               </div>
