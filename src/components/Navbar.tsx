@@ -74,7 +74,7 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
           isScrolled ? 'bg-[#18181F] py-2' : 'bg-[#18181F] py-3'
         }`}
       >
-        <div className="flex w-full items-center justify-between px-2 sm:px-4 lg:px-6">
+        <div className="mx-auto flex w-full max-w-[1720px] items-center justify-between px-4 sm:px-6 lg:px-10">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative overflow-hidden rounded-xl h-9 w-9">
