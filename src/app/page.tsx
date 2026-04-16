@@ -525,7 +525,7 @@ function LandingPage() {
             <h2 className="hero-premium-title mt-6 text-4xl sm:text-5xl lg:text-7xl leading-[1.1]">
               Welcome to <span className="text-[#efe3d2]">Makan</span><span className="text-[#d4af37]">Sedap</span>
             </h2>
-            <p className="hero-premium-copy mt-8 text-lg leading-relaxed">
+            <p className="hero-premium-copy mt-8 text-lg leading-relaxed text-white">
               We take pride in our culinary diversity, bringing Western and traditional cuisines together on a single menu. Whether you're craving the bold,
               rustic spices of a local heritage dish or the refined, savory pull of a Western classic, our kitchen strikes the perfect balance between the familiar and the global.
             </p>
