@@ -269,7 +269,7 @@ function LandingPage() {
           font-size: clamp(1.2rem, 1.1vw, 1.42rem);
           line-height: 1.82;
           letter-spacing: 0.004em;
-          color: rgba(245, 238, 226, 0.88);
+          color: #ffffff;
           text-shadow: 0 6px 22px rgba(0, 0, 0, 0.26);
         }
 
