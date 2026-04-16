@@ -366,7 +366,7 @@ function LandingPage() {
                 { label: 'MASTER CHEFS', value: '15' },
                 { label: 'GOOGLE RATING', value: '4.8', icon: true },
               ].map((stat, i) => (
-                <div key={i} className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+                <div key={i} className="border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
                   <div className="flex flex-col items-center text-center">
                     <div className="flex items-center gap-1">
                       <span className="text-xl font-bold text-[#d4af37]">
@@ -393,7 +393,7 @@ function LandingPage() {
               { label: 'MASTER CHEFS', value: '15' },
               { label: 'GOOGLE RATING', value: '4.8', icon: true },
             ].map((stat, i) => (
-              <div key={i} className="aspect-square relative group overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md transition-all hover:bg-white/10 hover:border-[#d4af37]/30 flex flex-col items-center justify-center">
+              <div key={i} className="aspect-square relative group overflow-hidden border border-white/10 bg-white/5 p-4 backdrop-blur-md transition-all hover:bg-white/10 hover:border-[#d4af37]/30 flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center text-center">
                   <div className="flex items-center gap-1.5">
                     <span className="text-4xl font-bold text-[#d4af37]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
