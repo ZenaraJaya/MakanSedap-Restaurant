@@ -362,9 +362,9 @@ function LandingPage() {
               style={{ animationDelay: '0.7s' }}
             >
               {[
-                { label: 'YRS FLAVOUR', value: '10' },
-                { label: 'MASTERS', value: '15' },
-                { label: 'RATING', value: '4.8', icon: true },
+                { label: 'YEARS OF FLAVOUR', value: '10' },
+                { label: 'MASTER CHEFS', value: '15' },
+                { label: 'GOOGLE RATING', value: '4.8', icon: true },
               ].map((stat, i) => (
                 <div key={i} className="border border-white/10 bg-white/5 p-2 backdrop-blur-sm">
                   <div className="flex flex-col items-center text-center">
@@ -374,7 +374,7 @@ function LandingPage() {
                       </span>
                       {stat.icon && <Star size={10} fill="#d4af37" className="text-[#d4af37]" />}
                     </div>
-                    <span className="font-sans mt-0.5 text-[0.45rem] font-bold tracking-[0.05em] text-white/40 uppercase">
+                    <span className="font-sans mt-0.5 text-[0.42rem] font-bold tracking-[0.05em] text-white/40 uppercase leading-none">
                       {stat.label}
                     </span>
                   </div>
@@ -385,28 +385,30 @@ function LandingPage() {
 
           {/* Right Column: Desktop Stats */}
           <div 
-            className={`hidden lg:grid grid-cols-3 gap-4 animate-slide-right lg:translate-y-24 ml-auto max-w-[320px] ${visibleSections.hero ? 'visible' : ''}`}
+            className={`hidden lg:flex items-end justify-end animate-slide-right h-full pb-0.5 ${visibleSections.hero ? 'visible' : ''}`}
             style={{ animationDelay: '0.4s' }}
           >
-            {[
-              { label: 'YEARS FLAVOUR', value: '10' },
-              { label: 'MASTERS', value: '15' },
-              { label: 'GOOGLE RATING', value: '4.8', icon: true },
-            ].map((stat, i) => (
-              <div key={i} className="aspect-square relative group overflow-hidden border border-white/10 bg-white/5 p-3 backdrop-blur-md transition-all hover:bg-white/10 hover:border-[#d4af37]/30 flex flex-col items-center justify-center">
-                <div className="flex flex-col items-center text-center">
-                  <div className="flex items-center gap-1">
-                    <span className="font-serif text-3xl font-bold text-[#d4af37]">
-                      {stat.value}
+            <div className="grid grid-cols-3 gap-3 max-w-[300px] w-full">
+              {[
+                { label: 'YEARS OF FLAVOUR', value: '10' },
+                { label: 'MASTER CHEFS', value: '15' },
+                { label: 'GOOGLE RATING', value: '4.8', icon: true },
+              ].map((stat, i) => (
+                <div key={i} className="aspect-square relative group overflow-hidden border border-white/10 bg-black/40 p-2.5 backdrop-blur-xl transition-all hover:bg-black/60 hover:border-[#d4af37]/30 flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center gap-1">
+                      <span className="font-serif text-2xl font-bold text-[#d4af37]">
+                        {stat.value}
+                      </span>
+                      {stat.icon && <Star size={14} fill="#d4af37" className="text-[#d4af37] -mt-0.5" />}
+                    </div>
+                    <span className="font-sans mt-1.5 text-[0.42rem] font-bold tracking-[0.1em] text-white/50 leading-tight px-0.5 uppercase">
+                      {stat.label}
                     </span>
-                    {stat.icon && <Star size={16} fill="#d4af37" className="text-[#d4af37] -mt-1" />}
                   </div>
-                  <span className="font-sans mt-2 text-[0.48rem] font-bold tracking-[0.15em] text-white/50 leading-tight px-1 uppercase">
-                    {stat.label}
-                  </span>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
