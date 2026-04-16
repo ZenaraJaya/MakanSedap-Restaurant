@@ -653,7 +653,13 @@ function LandingPage() {
                   alt="MakanSedap Logo"
                   className="h-10 w-10 rounded-xl object-cover"
                 />
-                <p className="text-lg font-bold text-amber-300">MakanSedap</p>
+                <p
+                  className="text-[2rem] font-semibold leading-none tracking-[0.01em]"
+                  style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
+                >
+                  <span className="text-[#f2e8d7]">Makan</span>
+                  <span className="text-[#d4af37]">Sedap</span>
+                </p>
               </div>
               <p className="text-base leading-7 text-white/70">
                 A modern dining experience with fast ordering and great food.
