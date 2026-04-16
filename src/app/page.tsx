@@ -672,7 +672,7 @@ function LandingPage() {
             </div>
 
             {/* Right Column: Map */}
-            <div className="h-full min-h-[500px] lg:mt-24 shadow-2xl relative">
+            <div className="w-full aspect-square lg:mt-24 shadow-2xl relative">
               <iframe
                 title="Miri Location Map"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15947.671040523!2d113.987!3d4.387!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwMjMnMTMuMiJOIDExM8KwNTknMTMuMiJF!5e0!3m2!1sen!2smy!4v1617260000000!5m2!1sen!2smy"
@@ -684,10 +684,6 @@ function LandingPage() {
                 referrerPolicy="no-referrer-when-downgrade"
                 className="absolute inset-0"
               />
-              <div className="absolute top-6 left-6 bg-[#0b0f19] border border-white/10 px-4 py-2 shadow-lg flex items-center gap-2">
-                <p className="text-[0.7rem] font-bold text-[#d4af37]">Open in Maps</p>
-                <ExternalLink size={14} className="text-[#d4af37]" />
-              </div>
             </div>
 
           </div>
