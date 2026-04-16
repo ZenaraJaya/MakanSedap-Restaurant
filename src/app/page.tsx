@@ -561,16 +561,18 @@ function LandingPage() {
               </div>
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center gap-6">
+            <div className="mt-12 flex flex-nowrap items-center gap-3 sm:gap-6">
               <a
                 href="#contact"
-                className="btn-hover bg-[#d4af37] px-10 py-4 text-[0.85rem] font-bold tracking-[0.2em] text-black uppercase"
+                className="btn-hover flex-1 flex items-center justify-center bg-[#d4af37] px-4 py-3 sm:px-10 sm:py-4 text-[0.7rem] sm:text-[0.85rem] font-bold tracking-[0.15em] sm:tracking-[0.2em] text-black uppercase text-center"
+                style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
               >
                 Contact Us
               </a>
               <Link
                 href="/menu"
-                className="btn-hover border border-white/20 bg-white/5 px-10 py-4 text-[0.85rem] font-bold tracking-[0.2em] text-white uppercase hover:bg-white/10"
+                className="btn-hover flex-1 flex items-center justify-center border border-[#d4af37]/60 bg-transparent px-4 py-3 sm:px-10 sm:py-4 text-[0.7rem] sm:text-[0.85rem] font-bold tracking-[0.15em] sm:tracking-[0.2em] text-[#d4af37] uppercase text-center hover:bg-[#d4af37]/10 transition-colors"
+                style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
               >
                 Order Now
               </Link>
