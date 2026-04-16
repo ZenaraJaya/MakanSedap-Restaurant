@@ -86,8 +86,12 @@ export default function Navbar({ cart: initialCart }: NavbarProps) {
               <div className="absolute inset-0 bg-amber-400/10 group-hover:bg-transparent transition-colors" />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-bold tracking-wider text-amber-300 group-hover:text-amber-200 transition-colors">
-                MakanSedap
+              <p
+                className="text-[1.75rem] font-semibold leading-none tracking-[0.01em]"
+                style={{ fontFamily: "'Cormorant Garamond', 'Baskerville', 'Times New Roman', serif" }}
+              >
+                <span className="text-[#efe3d2] transition-colors group-hover:text-[#fff1de]">Makan</span>
+                <span className="text-[#d4af37] transition-colors group-hover:text-[#e9c56a]">Sedap</span>
               </p>
             </div>
           </Link>
