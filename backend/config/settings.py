@@ -5,8 +5,6 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-print("--- DEBUG: Starting to load settings.py ---")
-
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,5 +119,3 @@ else:
     # Usually 465
     EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").strip().upper() == "TRUE"
     EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "True").strip().upper() == "TRUE"
-
-print(f"--- DEBUG: Settings loaded successfully (Host: {EMAIL_HOST}, Port: {EMAIL_PORT}, User: {EMAIL_HOST_USER}) ---")
