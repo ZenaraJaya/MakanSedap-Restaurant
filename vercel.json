@@ -1,4 +1,5 @@
 {
+  "name": "MakanSedap-Restaurant",
   "experimentalServices": {
     "frontend": {
       "routePrefix": "/",
