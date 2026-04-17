@@ -1,14 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { ChefHat, Utensils, ShoppingCart, Headset, Crown, Star } from 'lucide-react';
 import { MapPin, Phone, Mail, ExternalLink } from 'lucide-react';
+
+const HERO_HEADLINE_LINES = ['Enjoy hundreds of', 'flavors under', 'one roof'] as const;
+const HERO_TYPING_SPEED_MS = 75;
+const HERO_NEXT_LINE_DELAY_MS = 220;
+const HERO_HOLD_DELAY_MS = 1800;
+const HERO_DELETE_SPEED_MS = 40;
+const HERO_RESTART_DELAY_MS = 420;
+const HERO_STATS_REVEAL_DELAY_MS = 420;
 
 function LandingPage() {
   const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [typedHeadline, setTypedHeadline] = useState<string[]>(
+    () => HERO_HEADLINE_LINES.map(() => '')
+  );
+  const [activeHeadlineLine, setActiveHeadlineLine] = useState(0);
+  const [showHeroCopy, setShowHeroCopy] = useState(false);
+  const [showHeroStats, setShowHeroStats] = useState(false);
   const [visibleSections, setVisibleSections] = useState<{ [key: string]: boolean }>({
     hero: false,
     features: false,
@@ -65,6 +78,119 @@ function LandingPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!visibleSections.hero) {
+      return;
+    }
+
+    const emptyLines = HERO_HEADLINE_LINES.map(() => '');
+    let stepTimer: ReturnType<typeof setTimeout> | null = null;
+    let statsTimer: ReturnType<typeof setTimeout> | null = null;
+    let lineIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let isCancelled = false;
+    let hasRevealedHeroContent = false;
+
+    const setLineValue = (index: number, value: string) => {
+      setTypedHeadline((prev) => {
+        const next = [...prev];
+        next[index] = value;
+        return next;
+      });
+    };
+
+    const schedule = (delay: number, callback: () => void) => {
+      stepTimer = setTimeout(callback, delay);
+    };
+
+    const runStep = () => {
+      if (isCancelled) {
+        return;
+      }
+
+      const currentLine = HERO_HEADLINE_LINES[lineIndex];
+
+      if (!isDeleting) {
+        if (charIndex < currentLine.length) {
+          charIndex += 1;
+          setActiveHeadlineLine(lineIndex);
+          setLineValue(lineIndex, currentLine.slice(0, charIndex));
+          schedule(HERO_TYPING_SPEED_MS, runStep);
+          return;
+        }
+
+        if (lineIndex < HERO_HEADLINE_LINES.length - 1) {
+          lineIndex += 1;
+          charIndex = 0;
+          setActiveHeadlineLine(lineIndex);
+          schedule(HERO_NEXT_LINE_DELAY_MS, runStep);
+          return;
+        }
+
+        if (!hasRevealedHeroContent) {
+          hasRevealedHeroContent = true;
+          setShowHeroCopy(true);
+          if (statsTimer) {
+            clearTimeout(statsTimer);
+          }
+          statsTimer = setTimeout(() => {
+            if (!isCancelled) {
+              setShowHeroStats(true);
+            }
+          }, HERO_STATS_REVEAL_DELAY_MS);
+        }
+
+        isDeleting = true;
+        schedule(HERO_HOLD_DELAY_MS, runStep);
+        return;
+      }
+
+      if (charIndex > 0) {
+        charIndex -= 1;
+        setActiveHeadlineLine(lineIndex);
+        setLineValue(lineIndex, currentLine.slice(0, charIndex));
+        schedule(HERO_DELETE_SPEED_MS, runStep);
+        return;
+      }
+
+      if (lineIndex > 0) {
+        lineIndex -= 1;
+        charIndex = HERO_HEADLINE_LINES[lineIndex].length;
+        setLineValue(lineIndex + 1, '');
+        setActiveHeadlineLine(lineIndex);
+        schedule(HERO_TYPING_SPEED_MS, runStep);
+        return;
+      }
+
+      setTypedHeadline(emptyLines);
+      setActiveHeadlineLine(0);
+      isDeleting = false;
+      schedule(HERO_RESTART_DELAY_MS, runStep);
+    };
+
+    schedule(HERO_NEXT_LINE_DELAY_MS, () => {
+      if (isCancelled) {
+        return;
+      }
+      setTypedHeadline(emptyLines);
+      setShowHeroCopy(false);
+      setShowHeroStats(false);
+      setActiveHeadlineLine(0);
+      runStep();
+    });
+
+    return () => {
+      isCancelled = true;
+      if (stepTimer) {
+        clearTimeout(stepTimer);
+      }
+      if (statsTimer) {
+        clearTimeout(statsTimer);
+      }
+    };
+  }, [visibleSections.hero]);
+
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white overflow-x-hidden selection:bg-amber-400 selection:text-black">
       {/* Navbar is now global in layout.tsx */}
@@ -82,6 +208,10 @@ function LandingPage() {
         @keyframes ticker-scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
+        }
+        @keyframes hero-cursor-blink {
+          0%, 48% { opacity: 1; }
+          49%, 100% { opacity: 0; }
         }
 
         .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -273,8 +403,20 @@ function LandingPage() {
           text-shadow: 0 6px 22px rgba(0, 0, 0, 0.26);
         }
 
+        .hero-type-cursor {
+          display: inline-block;
+          width: 2px;
+          height: 0.9em;
+          margin-left: 0.18em;
+          background: #d4af37;
+          box-shadow: 0 0 10px rgba(212, 175, 55, 0.65);
+          vertical-align: baseline;
+          animation: hero-cursor-blink 0.9s steps(1, end) infinite;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .ticker-track { animation: none; }
+          .hero-type-cursor { animation: none; opacity: 1; }
         }
       `}</style>
 
@@ -309,20 +451,37 @@ function LandingPage() {
             className={`animate-slide-left ${visibleSections.hero ? 'visible' : ''}`}
             style={{ animationDelay: visibleSections.hero ? '0.1s' : '0s' }}
           >
-            <h1 className="hero-premium-title mt-6 text-[2.8rem] sm:text-[4rem] lg:text-[5.2rem]">
-              Enjoy hundreds of
-              <br />
-              <span className="text-[#d4af37]">flavors under</span>
-              <br />
-              one roof
+            <h1
+              className="hero-premium-title mt-6 text-[2.8rem] sm:text-[4rem] lg:text-[5.2rem]"
+              aria-label={HERO_HEADLINE_LINES.join(' ')}
+            >
+              {HERO_HEADLINE_LINES.map((line, index) => (
+                <span
+                  key={line}
+                  className={`block min-h-[1.02em] ${index === 1 ? 'text-[#d4af37]' : ''}`}
+                >
+                  {typedHeadline[index]}
+                  {activeHeadlineLine === index && (
+                    <span aria-hidden="true" className="hero-type-cursor" />
+                  )}
+                </span>
+              ))}
             </h1>
-            <p className="hero-premium-copy mt-8 max-w-xl">
+            <p
+              className={`hero-premium-copy mt-8 max-w-xl transition-all duration-700 ease-out ${
+                showHeroCopy ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            >
               Discover chef-crafted dishes, quick ordering, and a smooth dining
               experience. Browse the menu, place your order, and we'll handle the
               rest.
             </p>
 
-            <div className="mt-8 hidden lg:flex flex-wrap items-center gap-4">
+            <div
+              className={`mt-8 hidden lg:flex flex-wrap items-center gap-4 transition-all duration-700 ease-out ${
+                showHeroCopy ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+              }`}
+            >
               <Link
                 href={`/menu`}
                 className="hero-cta hero-cta-primary"
@@ -339,8 +498,9 @@ function LandingPage() {
 
             {/* Mobile Buttons */}
             <div 
-              className={`flex lg:hidden flex-nowrap items-center gap-2.5 mt-8 animate-slide-right ${visibleSections.hero ? 'visible' : ''}`}
-              style={{ animationDelay: visibleSections.hero ? '0.4s' : '0s' }}
+              className={`flex lg:hidden flex-nowrap items-center gap-2.5 mt-8 transition-all duration-700 ease-out ${
+                showHeroCopy ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+              }`}
             >
               <Link
                 href={`/menu`}
@@ -358,8 +518,9 @@ function LandingPage() {
 
             {/* Mobile Hero Stats - Now only on mobile column */}
             <div 
-              className={`grid lg:hidden grid-cols-3 gap-3 mt-8 animate-fade-in ${visibleSections.hero ? 'visible' : ''}`}
-              style={{ animationDelay: '0.7s' }}
+              className={`grid lg:hidden grid-cols-3 gap-3 mt-8 transition-all duration-700 ease-out ${
+                showHeroStats ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5 pointer-events-none'
+              }`}
             >
               {[
                 { label: 'YEARS OF FLAVOUR', value: '10' },
@@ -385,8 +546,9 @@ function LandingPage() {
 
           {/* Right Column: Desktop Stats */}
           <div 
-            className={`hidden lg:flex items-end justify-end animate-slide-right h-full pb-1.5 ${visibleSections.hero ? 'visible' : ''}`}
-            style={{ animationDelay: '0.4s' }}
+            className={`hidden lg:flex items-end justify-end h-full pb-1.5 transition-all duration-700 ease-out ${
+              showHeroStats ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8 pointer-events-none'
+            }`}
           >
             <div className="grid grid-cols-3 gap-5 max-w-[440px] w-full">
               {[
