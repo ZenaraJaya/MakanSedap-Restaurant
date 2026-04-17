@@ -7,7 +7,7 @@
     },
     "backend": {
       "routePrefix": "/api",
-      "rootDirectory": "backend"
+      "entrypoint": "backend"
     }
   }
 }
