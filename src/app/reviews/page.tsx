@@ -166,48 +166,43 @@ function ReviewsPage() {
             <p className="text-white/60">Be the first to share your experience.</p>
           </div>
         ) : (
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-            {reviews.map((review, i) => {
-              // Apply the same antigravity class to all cards so they float synchronously
-              const floatClass = 'antigravity';
-
-              return (
-                <div
-                  key={review.id}
-                  className={`break-inside-avoid bg-white/5 border border-white/10 rounded-3xl p-6 hover:bg-white/[0.07] transition-all hover:scale-[1.02] ${floatClass}`}
-                >
-                  <div className="flex items-center gap-1 mb-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-4 h-4 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'fill-white/10 text-white/10'}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-white/90 text-lg leading-relaxed mb-6 font-medium">"{review.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 flex items-center justify-center border border-amber-500/30">
-                      <User className="w-5 h-5 text-amber-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-bold">{review.customerName || 'Anonymous'}</h4>
-                      <span className="text-xs text-white/40">
-                        {review.createdAt?.toDate ? new Date(review.createdAt.toDate()).toLocaleDateString(undefined, {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        }) : 'Just now'}
-                      </span>
-                    </div>
-                    {review.tableNumber && (
-                      <div className="ml-auto bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-lg">
-                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-tighter">Table #{review.tableNumber}</span>
-                      </div>
-                    )}
-                  </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {reviews.map((review) => (
+              <div
+                key={review.id}
+                className="h-full rounded-3xl border border-white/10 bg-white/5 p-6 transition-all hover:scale-[1.02] hover:bg-white/[0.07] flex flex-col"
+              >
+                <div className="mb-4 flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-4 w-4 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'fill-white/10 text-white/10'}`}
+                    />
+                  ))}
                 </div>
-              )
-            })}
+                <p className="mb-6 text-lg font-medium leading-relaxed text-white/90">"{review.text}"</p>
+                <div className="mt-auto flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/30 bg-gradient-to-br from-amber-400/20 to-orange-500/20">
+                    <User className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white">{review.customerName || 'Anonymous'}</h4>
+                    <span className="text-xs text-white/40">
+                      {review.createdAt?.toDate ? new Date(review.createdAt.toDate()).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      }) : 'Just now'}
+                    </span>
+                  </div>
+                  {review.tableNumber && (
+                    <div className="ml-auto rounded-lg border border-amber-400/20 bg-amber-400/10 px-2.5 py-1">
+                      <span className="text-[10px] font-black uppercase tracking-tighter text-amber-400">Table #{review.tableNumber}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
