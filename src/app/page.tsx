@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
 import { ChefHat, Utensils, ShoppingCart, Headset, Crown, Star } from 'lucide-react';
 import { MapPin, Phone, Mail, ExternalLink } from 'lucide-react';
 
@@ -12,6 +12,9 @@ const HERO_HOLD_DELAY_MS = 1800;
 const HERO_DELETE_SPEED_MS = 40;
 const HERO_RESTART_DELAY_MS = 420;
 const HERO_STATS_REVEAL_DELAY_MS = 420;
+const FEATURE_CARD_STAGGER_MS = 300;
+const FEATURE_CARD_FADE_MIN_MS = 550;
+const FEATURE_CARD_FADE_MAX_MS = 1100;
 
 function LandingPage() {
   const [cart, setCart] = useState<{ [key: string]: number }>({});
@@ -22,18 +25,46 @@ function LandingPage() {
   const [activeHeadlineLine, setActiveHeadlineLine] = useState(0);
   const [showHeroCopy, setShowHeroCopy] = useState(false);
   const [showHeroStats, setShowHeroStats] = useState(false);
+  const [showFeatureCards, setShowFeatureCards] = useState(false);
   const [visibleSections, setVisibleSections] = useState<{ [key: string]: boolean }>({
     hero: false,
     features: false,
     about: false,
     footer: false,
   });
+  const featureStripRef = useRef<HTMLElement | null>(null);
   const tickerItems = [
     'Dine-In - Takeaway - Delivery',
     'Halal Certified',
     'Open 7 Days a Week',
     "Miri's Favourite Restaurant",
     'Western & Traditional Fusion',
+  ];
+  const featureCards = [
+    {
+      title: 'Master Chefs',
+      copy: 'Crafted by experienced chefs, consistent quality.',
+      cardClass: 'px-8 py-10',
+      icon: <ChefHat strokeWidth={2.1} size={20} />,
+    },
+    {
+      title: 'Quality Food',
+      copy: 'Fresh ingredients with great taste in every bite.',
+      cardClass: 'border-t border-[#d4af37]/20 px-8 py-10 md:border-l md:border-t-0 lg:border-[#d4af37]/25',
+      icon: <Utensils strokeWidth={2.1} size={20} />,
+    },
+    {
+      title: 'Online Order',
+      copy: 'Order from the table and track your order easily.',
+      cardClass: 'border-t border-[#d4af37]/20 px-8 py-10 lg:border-l lg:border-t-0 lg:border-[#d4af37]/25',
+      icon: <ShoppingCart strokeWidth={2.1} size={20} />,
+    },
+    {
+      title: '24/7 Service',
+      copy: 'Support for your dining flow whenever needed.',
+      cardClass: 'border-t border-[#d4af37]/20 px-8 py-10 md:border-l lg:border-t-0 lg:border-[#d4af37]/25',
+      icon: <Headset strokeWidth={2.1} size={20} />,
+    },
   ];
 
   useEffect(() => {
@@ -76,6 +107,30 @@ function LandingPage() {
         window.dispatchEvent(new Event('cartUpdated'));
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const featureStrip = featureStripRef.current;
+    if (!featureStrip) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShowFeatureCards(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      {
+        threshold: 0.28,
+        rootMargin: '0px 0px -8% 0px',
+      }
+    );
+
+    observer.observe(featureStrip);
+
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -330,6 +385,19 @@ function LandingPage() {
           animation-play-state: paused;
         }
 
+        .feature-strip-card {
+          opacity: 0;
+          transform: translateY(28px);
+          transition-property: opacity, transform;
+          transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: opacity, transform;
+        }
+
+        .feature-strip-card.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
         .feature-slice {
           position: relative;
           isolation: isolate;
@@ -417,6 +485,12 @@ function LandingPage() {
         @media (prefers-reduced-motion: reduce) {
           .ticker-track { animation: none; }
           .hero-type-cursor { animation: none; opacity: 1; }
+          .feature-strip-card,
+          .feature-strip-card.is-visible {
+            opacity: 1;
+            transform: none;
+            transition: none;
+          }
         }
       `}</style>
 
@@ -593,7 +667,10 @@ function LandingPage() {
       </section>
 
       {/* Feature strip - Full Width */}
-      <section className="relative overflow-hidden bg-[#18181F] py-16">
+      <section
+        ref={featureStripRef}
+        className="relative overflow-hidden bg-[#18181F] py-16"
+      >
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute inset-x-0 top-0 h-px bg-[#d4af37]/45" />
           <div className="absolute inset-x-0 bottom-0 h-px bg-[#d4af37]/30" />
@@ -602,51 +679,31 @@ function LandingPage() {
         </div>
         <div className="relative mx-auto max-w-7xl px-4">
           <div className="grid grid-cols-1 gap-0 md:grid-cols-2 lg:grid-cols-4">
+            {featureCards.map((card, index) => {
+              const durationStep = featureCards.length > 1
+                ? (FEATURE_CARD_FADE_MAX_MS - FEATURE_CARD_FADE_MIN_MS) / (featureCards.length - 1)
+                : 0;
+              const cardFadeDurationMs = Math.round(FEATURE_CARD_FADE_MIN_MS + (durationStep * index));
 
-            {/* Card 1: Master Chefs */}
-            <div className="feature-slice group cursor-pointer px-8 py-10">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
-                <ChefHat strokeWidth={2.1} size={20} />
-              </div>
-              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">Master Chefs</h3>
-              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-white/80">
-                Crafted by experienced chefs, consistent quality.
-              </p>
-            </div>
-
-            {/* Card 2: Quality Food */}
-            <div className="feature-slice group cursor-pointer border-t border-[#d4af37]/20 px-8 py-10 md:border-l md:border-t-0 lg:border-[#d4af37]/25">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
-                <Utensils strokeWidth={2.1} size={20} />
-              </div>
-              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">Quality Food</h3>
-              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-white/80">
-                Fresh ingredients with great taste in every bite.
-              </p>
-            </div>
-
-            {/* Card 3: Online Order */}
-            <div className="feature-slice group cursor-pointer border-t border-[#d4af37]/20 px-8 py-10 lg:border-l lg:border-t-0 lg:border-[#d4af37]/25">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
-                <ShoppingCart strokeWidth={2.1} size={20} />
-              </div>
-              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">Online Order</h3>
-              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-white/80">
-                Order from the table and track your order easily.
-              </p>
-            </div>
-
-            {/* Card 4: 24/7 Service */}
-            <div className="feature-slice group cursor-pointer border-t border-[#d4af37]/20 px-8 py-10 md:border-l lg:border-t-0 lg:border-[#d4af37]/25">
-              <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
-                <Headset strokeWidth={2.1} size={20} />
-              </div>
-              <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">24/7 Service</h3>
-              <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-white/80">
-                Support for your dining flow whenever needed.
-              </p>
-            </div>
-
+              return (
+                <div
+                  key={card.title}
+                  className={`feature-slice feature-strip-card group cursor-pointer ${card.cardClass} ${showFeatureCards ? 'is-visible' : ''}`}
+                  style={{
+                    transitionDelay: showFeatureCards ? `${index * FEATURE_CARD_STAGGER_MS}ms` : '0ms',
+                    transitionDuration: `${cardFadeDurationMs}ms`,
+                  }}
+                >
+                  <div className="feature-slice-icon inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d4af37]/40 text-[#d4af37]">
+                    {card.icon}
+                  </div>
+                  <h3 className="feature-slice-title mt-6 text-[1.95rem] font-medium leading-[1.08] tracking-[0.01em] text-white">{card.title}</h3>
+                  <p className="feature-slice-copy mt-4 max-w-[16rem] text-[1.08rem] leading-8 text-white/80">
+                    {card.copy}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
